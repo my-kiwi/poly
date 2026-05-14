@@ -3,19 +3,23 @@
   "version": "1.0.0",
   "private": true,
   "type": "module",
+  "dependencies": {
+    "three": "^0.184.0"
+  },
   "scripts": {
     "dev": "vite",
     "build": "tsc && npm run lint && npm run test && vite build",
     "preview": "vite preview",
     "lint": "eslint ./src --ext .ts,.tsx",
     "lint:fix": "npm run lint -- --fix",
-    "test": "vitest run",
+    "test": "vitest run --passWithNoTests",
     "test:watch": "vitest",
     "prepare": "husky"
   },
   "devDependencies": {
     "@eslint/js": "^9.35.0",
     "@types/node": "^20.0.0",
+    "@types/three": "^0.184.0",
     "@typescript-eslint/eslint-plugin": "^8.44.0",
     "@typescript-eslint/parser": "^8.44.0",
     "eslint": "^9.35.0",

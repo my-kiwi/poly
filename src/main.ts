@@ -1,1 +1,3 @@
-import './App';
+window.addEventListener('DOMContentLoaded', () => {
+  import('./game');
+});

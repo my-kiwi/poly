@@ -1,5 +1,9 @@
 import {
   AmbientLight,
+  Audio,
+  AudioAnalyser,
+  AudioListener,
+  AudioLoader,
   BoxGeometry,
   Color,
   FogExp2,
@@ -27,6 +31,15 @@ const renderer = new WebGLRenderer({ antialias: true, alpha: true });
 renderer.setPixelRatio(window.devicePixelRatio);
 container.appendChild(renderer.domElement);
 
+const audioListener = new AudioListener();
+camera.add(audioListener);
+
+const audioLoader = new AudioLoader();
+const audio = new Audio(audioListener);
+let analyser: AudioAnalyser;
+
+const buildingLights: PointLight[] = [];
+
 const createBuilding = (
   x: number,
   z: number,
@@ -49,9 +62,10 @@ const createBuilding = (
   building.position.set(x, height / 2, z);
   scene.add(building);
 
-  const neonLight = new PointLight(neon, 1.2, 12, 2);
+  const neonLight = new PointLight(neon, 0.1, 12, 2);
   neonLight.position.set(x, height + 0.2, z);
   scene.add(neonLight);
+  buildingLights.push(neonLight);
 };
 
 const createCity = () => {
@@ -90,16 +104,18 @@ grid.rotation.x = Math.PI / 2;
 grid.position.y = 0.01;
 scene.add(grid);
 
-const ambientLight = new AmbientLight(0x8e4ff3, 0.45);
+const ambientLight = new AmbientLight(0x8e4ff3, 0.1);
 scene.add(ambientLight);
 
-const keyLight = new PointLight(0x9a53ff, 0.8, 25, 2);
+const keyLight = new PointLight(0x9a53ff, 0.1, 25, 2);
 keyLight.position.set(-12, 12, 10);
 scene.add(keyLight);
 
-const fillLight = new PointLight(0x33b2ff, 0.5, 20, 2);
+const fillLight = new PointLight(0x33b2ff, 0.1, 20, 2);
 fillLight.position.set(10, 8, -12);
 scene.add(fillLight);
+
+const lights = { ambientLight, keyLight, fillLight };
 
 createCity();
 
@@ -114,6 +130,29 @@ const resize = () => {
 window.addEventListener('resize', resize);
 resize();
 
+let audioInitialized = false;
+let audioReady = false;
+
+const initAudio = () => {
+  if (audioInitialized) return;
+  audioInitialized = true;
+
+  audioLoader.load('/audio/joshua_moses_where_we_end_up.mp3', (buffer) => {
+    audio.setBuffer(buffer);
+    audio.setLoop(true);
+    audio.setVolume(0.5);
+    analyser = new AudioAnalyser(audio, 256);
+    audioReady = true;
+  });
+};
+
+const startAudio = () => {
+  if (audioReady && audio && !audio.isPlaying) {
+    audio.play();
+    document.removeEventListener('click', startAudio);
+  }
+};
+
 const animate = () => {
   requestAnimationFrame(animate);
   const time = performance.now() * 0.0001;
@@ -121,9 +160,46 @@ const animate = () => {
   camera.position.z = Math.cos(time) * 20;
   camera.position.y = 6 + Math.sin(time * 0.8) * 0.6;
   camera.lookAt(new Vector3(0, 3, 0));
+
+  if (analyser && audioReady) {
+    const dataArray = analyser.getFrequencyData();
+
+    if (dataArray && dataArray.length > 0) {
+      const average = dataArray.reduce((a, b) => a + b) / dataArray.length;
+      const averageNormalized = Math.pow(average / 255, 0.5);
+
+      const lowFreqData = dataArray.slice(0, 8);
+      const midFreqData = dataArray.slice(8, 128);
+      const highFreqData = dataArray.slice(128, 256);
+
+      const lowFreq =
+        lowFreqData.length > 0 ? lowFreqData.reduce((a, b) => a + b) / lowFreqData.length : 0;
+      const midFreq =
+        midFreqData.length > 0 ? midFreqData.reduce((a, b) => a + b) / midFreqData.length : 0;
+      const highFreq =
+        highFreqData.length > 0 ? highFreqData.reduce((a, b) => a + b) / highFreqData.length : 0;
+
+      const lowNormalized = Math.pow(lowFreq / 255, 0.6);
+      const midNormalized = Math.pow(midFreq / 255, 0.6);
+      const highNormalized = Math.pow(highFreq / 255, 0.6);
+
+      lights.ambientLight.intensity = 0.1 + averageNormalized * 0.5;
+      lights.keyLight.intensity = 0.1 + lowNormalized * 1;
+      lights.fillLight.intensity = 0.1 + midNormalized * 0.8;
+
+      buildingLights.forEach((light, index) => {
+        const freqBand =
+          index % 3 === 0 ? lowNormalized : index % 3 === 1 ? midNormalized : highNormalized;
+        light.intensity = 0.1 + freqBand * 1.5;
+      });
+    }
+  }
+
   renderer.render(scene, camera);
 };
 
+initAudio();
+document.addEventListener('click', startAudio);
 animate();
 
-console.log('Game initialized');
+console.log('Game initialized - click to start audio');

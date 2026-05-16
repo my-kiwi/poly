@@ -41,19 +41,19 @@ main {
   flex: 1; /* Pushes the footer down */
 }
 
- #game {
+#game {
   display: block;
   width: 100%;
   height: 100vh;
   margin: 0;
   padding: 0;
-  width: 100%;
-  height: 100%;
   overflow: hidden;
+  background: radial-gradient(circle at top, #ff4fa2 0%, #1a0f40 25%, #06010e 55%, #02010b 100%);
 }
 
 canvas {
   display: block;
   width: 100%;
   height: 100%;
+  background: transparent;
 }

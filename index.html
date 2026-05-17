@@ -13,4 +13,18 @@
     </div>
     <script type="module" src="./src/main.ts"></script>
   </body>
+  <script>
+    const startButton = document.getElementById('start-button');
+    const startTitleEffect = startButton.animate(
+      [
+        { transform: 'scale(0.001)', opacity: 1 },
+        { transform: 'scale(5)', opacity: 0 },
+        { transform: 'scale(0.001)', opacity: 1 },
+      ],
+      {
+        duration: 60000,
+        iterations: Infinity,
+      }
+    );
+    </script>
 </html>

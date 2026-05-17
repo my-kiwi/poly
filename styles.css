@@ -57,3 +57,21 @@ canvas {
   height: 100%;
   background: transparent;
 }
+
+#start-button {
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  transform: translate(-50%, -50%);
+  padding: 1em 2em;
+  font-size: 1.5em;
+  background-color: var(--text-color);
+  color: var(--bg-color);
+  border: none;
+  border-radius: 8px;
+  cursor: pointer;
+  background-color: #02010b;
+  color: #e0e0e0;
+  border:#ff4fa2 2px solid;
+  transition: background-color 0.3s, color 0.3s, border-color 0.3s;
+}

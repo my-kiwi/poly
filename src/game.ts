@@ -199,7 +199,10 @@ const animate = () => {
 };
 
 initAudio();
-document.addEventListener('click', startAudio);
-animate();
+document.addEventListener('click', () => {
+  document.getElementById('start-button')!.style.display = 'none';
+  startAudio();
+  animate();
+});
 
 console.log('Game initialized - click to start audio');

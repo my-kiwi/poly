@@ -186,7 +186,8 @@ const startAudio = () => {
       console.log('Audio started');
     })
     .catch((error) => {
-      console.error('Error starting audio:', error);
+      document.getElementById('start-button')!.style.display = 'block';
+      document.getElementById('start-button')!.textContent = 'error ' + error.message;
     });
 };
 

@@ -1,9 +1,7 @@
 import {
   AmbientLight,
-  Audio,
-  AudioAnalyser,
+  // AudioAnalyser,
   AudioListener,
-  AudioLoader,
   BoxGeometry,
   Color,
   FogExp2,
@@ -17,6 +15,7 @@ import {
   Vector3,
   WebGLRenderer,
 } from 'three';
+import * as THREE from 'three';
 
 const container = document.getElementById('game')!;
 
@@ -34,9 +33,13 @@ container.appendChild(renderer.domElement);
 const audioListener = new AudioListener();
 camera.add(audioListener);
 
-const audioLoader = new AudioLoader();
-const audio = new Audio(audioListener);
-let analyser: AudioAnalyser;
+const audioElement = new Audio('./audio/joshua_moses_where_we_end_up.mp3');
+audioElement.loop = true;
+
+const sound = new THREE.Audio(audioListener);
+sound.setMediaElementSource(audioElement);
+
+// let analyser: AudioAnalyser;
 
 const buildingLights: PointLight[] = [];
 
@@ -115,7 +118,7 @@ const fillLight = new PointLight(0x33b2ff, 0.1, 20, 2);
 fillLight.position.set(10, 8, -12);
 scene.add(fillLight);
 
-const lights = { ambientLight, keyLight, fillLight };
+// const lights = { ambientLight, keyLight, fillLight };
 
 createCity();
 
@@ -130,29 +133,6 @@ const resize = () => {
 window.addEventListener('resize', resize);
 resize();
 
-let audioInitialized = false;
-let audioReady = false;
-
-const initAudio = () => {
-  if (audioInitialized) return;
-  audioInitialized = true;
-
-  audioLoader.load('/audio/joshua_moses_where_we_end_up.mp3', (buffer) => {
-    audio.setBuffer(buffer);
-    audio.setLoop(true);
-    audio.setVolume(0.5);
-    analyser = new AudioAnalyser(audio, 256);
-    audioReady = true;
-  });
-};
-
-const startAudio = () => {
-  if (audioReady && audio && !audio.isPlaying) {
-    audio.play();
-    document.removeEventListener('click', startAudio);
-  }
-};
-
 const animate = () => {
   requestAnimationFrame(animate);
   const time = performance.now() * 0.0001;
@@ -161,48 +141,61 @@ const animate = () => {
   camera.position.y = 6 + Math.sin(time * 0.8) * 0.6;
   camera.lookAt(new Vector3(0, 3, 0));
 
-  if (analyser && audioReady) {
-    const dataArray = analyser.getFrequencyData();
+  // if (analyser && audioReady) {
+  //   const dataArray = analyser.getFrequencyData();
 
-    if (dataArray && dataArray.length > 0) {
-      const average = dataArray.reduce((a, b) => a + b) / dataArray.length;
-      const averageNormalized = Math.pow(average / 255, 0.5);
+  //   if (dataArray && dataArray.length > 0) {
+  //     const average = dataArray.reduce((a, b) => a + b) / dataArray.length;
+  //     const averageNormalized = Math.pow(average / 255, 0.5);
 
-      const lowFreqData = dataArray.slice(0, 8);
-      const midFreqData = dataArray.slice(8, 128);
-      const highFreqData = dataArray.slice(128, 256);
+  //     const lowFreqData = dataArray.slice(0, 8);
+  //     const midFreqData = dataArray.slice(8, 128);
+  //     const highFreqData = dataArray.slice(128, 256);
 
-      const lowFreq =
-        lowFreqData.length > 0 ? lowFreqData.reduce((a, b) => a + b) / lowFreqData.length : 0;
-      const midFreq =
-        midFreqData.length > 0 ? midFreqData.reduce((a, b) => a + b) / midFreqData.length : 0;
-      const highFreq =
-        highFreqData.length > 0 ? highFreqData.reduce((a, b) => a + b) / highFreqData.length : 0;
+  //     const lowFreq =
+  //       lowFreqData.length > 0 ? lowFreqData.reduce((a, b) => a + b) / lowFreqData.length : 0;
+  //     const midFreq =
+  //       midFreqData.length > 0 ? midFreqData.reduce((a, b) => a + b) / midFreqData.length : 0;
+  //     const highFreq =
+  //       highFreqData.length > 0 ? highFreqData.reduce((a, b) => a + b) / highFreqData.length : 0;
 
-      const lowNormalized = Math.pow(lowFreq / 255, 0.6);
-      const midNormalized = Math.pow(midFreq / 255, 0.6);
-      const highNormalized = Math.pow(highFreq / 255, 0.6);
+  //     const lowNormalized = Math.pow(lowFreq / 255, 0.6);
+  //     const midNormalized = Math.pow(midFreq / 255, 0.6);
+  //     const highNormalized = Math.pow(highFreq / 255, 0.6);
 
-      lights.ambientLight.intensity = 0.1 + averageNormalized * 0.5;
-      lights.keyLight.intensity = 0.1 + lowNormalized * 1;
-      lights.fillLight.intensity = 0.1 + midNormalized * 0.8;
+  //     lights.ambientLight.intensity = 0.1 + averageNormalized * 0.5;
+  //     lights.keyLight.intensity = 0.1 + lowNormalized * 1;
+  //     lights.fillLight.intensity = 0.1 + midNormalized * 0.8;
 
-      buildingLights.forEach((light, index) => {
-        const freqBand =
-          index % 3 === 0 ? lowNormalized : index % 3 === 1 ? midNormalized : highNormalized;
-        light.intensity = 0.1 + freqBand * 1.5;
-      });
-    }
-  }
+  //     buildingLights.forEach((light, index) => {
+  //       const freqBand =
+  //         index % 3 === 0 ? lowNormalized : index % 3 === 1 ? midNormalized : highNormalized;
+  //       light.intensity = 0.1 + freqBand * 1.5;
+  //     });
+  //   }
+  // }
 
   renderer.render(scene, camera);
 };
 
-initAudio();
-document.addEventListener('click', () => {
-  document.getElementById('start-button')!.style.display = 'none';
+const startAudio = () => {
+  audioElement
+    .play()
+    .then(() => {
+      // analyser = new AudioAnalyser(sound, 256);
+      console.log('Audio started');
+    })
+    .catch((error) => {
+      console.error('Error starting audio:', error);
+    });
+};
+
+const startGame = () => {
   startAudio();
   animate();
-});
+  document.removeEventListener('click', startGame);
+  document.getElementById('start-button')!.style.display = 'none';
+};
+document.addEventListener('click', startGame);
 
 console.log('Game initialized - click to start audio');

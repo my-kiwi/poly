@@ -35,6 +35,8 @@ camera.add(audioListener);
 
 const audioElement = new Audio('./audio/joshua_moses_where_we_end_up.mp3');
 audioElement.loop = true;
+audioElement.crossOrigin = 'anonymous';
+audioElement.preload = 'auto';
 
 const sound = new THREE.Audio(audioListener);
 sound.setMediaElementSource(audioElement);
@@ -178,16 +180,26 @@ const animate = () => {
   renderer.render(scene, camera);
 };
 
+const startButton = document.getElementById('start-button')!;
+
+const unlockAudioContext = () => {
+  if (audioListener.context.state === 'suspended') {
+    return audioListener.context.resume();
+  }
+  return Promise.resolve();
+};
+
 const startAudio = () => {
-  audioElement
-    .play()
+  unlockAudioContext()
+    .then(() => audioElement.play())
     .then(() => {
       // analyser = new AudioAnalyser(sound, 256);
       console.log('Audio started');
     })
     .catch((error) => {
-      document.getElementById('start-button')!.style.display = 'block';
-      document.getElementById('start-button')!.textContent = 'error ' + error.message;
+      startButton.style.display = 'block';
+      startButton.textContent = 'Error: ' + error.message;
+      console.error('Audio start failed', error);
     });
 };
 
@@ -195,8 +207,12 @@ const startGame = () => {
   startAudio();
   animate();
   document.removeEventListener('click', startGame);
-  document.getElementById('start-button')!.style.display = 'none';
+  startButton.style.display = 'none';
 };
+
+startButton.addEventListener('click', startGame);
+startButton.addEventListener('touchend', startGame);
+
 document.addEventListener('click', startGame);
 
-console.log('Game initialized - click to start audio');
+console.log('Game initialized - tap to start audio');

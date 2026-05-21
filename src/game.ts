@@ -6,12 +6,15 @@ import {
   Color,
   FogExp2,
   GridHelper,
+  IcosahedronGeometry,
   Mesh,
   MeshStandardMaterial,
   PerspectiveCamera,
   PlaneGeometry,
   PointLight,
+  Raycaster,
   Scene,
+  Vector2,
   Vector3,
   WebGLRenderer,
 } from 'three';
@@ -23,7 +26,7 @@ const scene = new Scene();
 scene.fog = new FogExp2(0x07061a, 0.028);
 
 const camera = new PerspectiveCamera(45, 1, 0.1, 100);
-camera.position.set(0, 5, 12);
+camera.position.set(0, 5, 60);
 camera.lookAt(new Vector3(0, 3, 0));
 
 const renderer = new WebGLRenderer({ antialias: true, alpha: true });
@@ -142,6 +145,61 @@ fillLight.position.set(10, 8, -12);
 
 createCity();
 
+// Create the rotating polygon
+let gameStarted = false;
+const polygonGeometry = new IcosahedronGeometry(3);
+const polygonMaterial = new MeshStandardMaterial({
+  color: 0x4d99ff,
+  emissive: 0x4d99ff,
+  emissiveIntensity: 38,
+  metalness: 0.1,
+  roughness: 1,
+  transparent: true,
+  opacity: 1,
+});
+const polygon = new Mesh(polygonGeometry, polygonMaterial);
+polygon.position.set(0, 3, 10);
+scene.add(polygon);
+
+let currentColorIndex = 0;
+let nextColorIndex = 1;
+let colorLerpProgress = 0;
+
+// Animation state
+let isAnimatingToGame = false;
+let animationProgress = 0;
+const finalCameraPos = { x: 0, y: 6, z: 20 };
+const startCameraPos = { x: 0, y: 5, z: 60 };
+
+const raycaster = new Raycaster();
+const mouse = new Vector2();
+
+const onPolygonClickMouse = (event: MouseEvent) => {
+  mouse.x = (event.clientX / window.innerWidth) * 2 - 1;
+  mouse.y = -(event.clientY / window.innerHeight) * 2 + 1;
+  raycaster.setFromCamera(mouse, camera);
+  const intersects = raycaster.intersectObject(polygon);
+
+  if (intersects.length > 0) {
+    startGame();
+  }
+};
+
+const onPolygonClickTouch = (event: TouchEvent) => {
+  const touch = event.touches[0] || event.changedTouches[0];
+  mouse.x = (touch.clientX / window.innerWidth) * 2 - 1;
+  mouse.y = -(touch.clientY / window.innerHeight) * 2 + 1;
+  raycaster.setFromCamera(mouse, camera);
+  const intersects = raycaster.intersectObject(polygon);
+
+  if (intersects.length > 0) {
+    startGame();
+  }
+};
+
+window.addEventListener('click', onPolygonClickMouse);
+window.addEventListener('touchend', onPolygonClickTouch);
+
 const resize = () => {
   const width = container.clientWidth || window.innerWidth;
   const height = container.clientHeight || window.innerHeight;
@@ -156,10 +214,55 @@ resize();
 const animate = () => {
   requestAnimationFrame(animate);
   const time = performance.now() * 0.0001;
-  camera.position.x = Math.sin(time) * 12;
-  camera.position.z = Math.cos(time) * 20;
-  camera.position.y = 6 + Math.sin(time * 0.8) * 0.6;
+
+  // Handle camera animation when transitioning to game
+  if (isAnimatingToGame) {
+    animationProgress += 0.01;
+    if (animationProgress >= 1) {
+      animationProgress = 1;
+      isAnimatingToGame = false;
+    }
+
+    // Interpolate camera position
+    camera.position.x = THREE.MathUtils.lerp(startCameraPos.x, finalCameraPos.x, animationProgress);
+    camera.position.y = THREE.MathUtils.lerp(startCameraPos.y, finalCameraPos.y, animationProgress);
+    camera.position.z = THREE.MathUtils.lerp(startCameraPos.z, finalCameraPos.z, animationProgress);
+
+    // Fade out polygon
+    const opacity = 1 - animationProgress;
+    (polygon.material as MeshStandardMaterial).opacity = opacity;
+    (polygon.material as MeshStandardMaterial).emissiveIntensity = 0.8 * opacity;
+  } else if (gameStarted) {
+    // Rotate camera after animation
+    camera.position.x = Math.sin(time) * 12;
+    camera.position.z = Math.cos(time) * 20;
+    camera.position.y = 6 + Math.sin(time * 0.8) * 0.6;
+  }
+
   camera.lookAt(new Vector3(0, 3, 0));
+
+  // Rotate polygon (only visible during animation)
+  if (isAnimatingToGame || !gameStarted) {
+    polygon.rotation.x += 0.001;
+    polygon.rotation.y += 0.0008;
+    polygon.rotation.z += 0.006;
+  }
+
+  // Smooth color transitions (only during animation/start)
+  if (isAnimatingToGame || !gameStarted) {
+    colorLerpProgress += 0.005;
+    if (colorLerpProgress >= 1) {
+      currentColorIndex = nextColorIndex;
+      nextColorIndex = (nextColorIndex + 1) % neonColors.length;
+      colorLerpProgress = 0;
+    }
+
+    const currentColor = neonColors[currentColorIndex];
+    const nextColor = neonColors[nextColorIndex];
+    const lerpedColor = new Color(currentColor).lerp(new Color(nextColor), colorLerpProgress);
+    (polygon.material as MeshStandardMaterial).color.copy(lerpedColor);
+    (polygon.material as MeshStandardMaterial).emissive.copy(lerpedColor);
+  }
 
   renderer.render(scene, camera);
   updateAudioReactiveElements();
@@ -202,8 +305,6 @@ const updateAudioReactiveElements = () => {
   }
 };
 
-const startButton = document.getElementById('start-button')!;
-
 const unlockAudioContext = () => {
   if (audioListener.context.state === 'suspended') {
     return audioListener.context.resume();
@@ -219,26 +320,23 @@ const startAudio = () => {
       console.log('Audio started');
     })
     .catch((error) => {
-      startButton.style.display = 'block';
-      startButton.textContent = 'Error: ' + error.message;
       console.error('Audio start failed', error);
     });
 };
 
 const startGame = () => {
+  gameStarted = true;
+  isAnimatingToGame = true;
+  window.removeEventListener('click', onPolygonClickMouse);
+  window.removeEventListener('touchend', onPolygonClickTouch);
   startAudio();
-  animate();
-  document.removeEventListener('click', startGame);
-  startButton.style.display = 'none';
 };
 
-startButton.addEventListener('click', startGame);
-startButton.addEventListener('touchend', startGame);
-
-document.addEventListener('click', startGame);
+// Start the animation loop immediately
+animate();
 
 if (new URLSearchParams(window.location.search).get('autoplay') === 'true') {
   startGame();
 }
 
-console.log('Game initialized - tap to start audio');
+console.log('Game initialized - click the polygon to start audio');

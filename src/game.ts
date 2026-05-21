@@ -1,6 +1,6 @@
 import {
-  AmbientLight,
-  // AudioAnalyser,
+  // AmbientLight,
+  AudioAnalyser,
   AudioListener,
   BoxGeometry,
   Color,
@@ -41,9 +41,20 @@ audioElement.preload = 'auto';
 const sound = new THREE.Audio(audioListener);
 sound.setMediaElementSource(audioElement);
 
-// let analyser: AudioAnalyser;
+let analyser: AudioAnalyser;
 
-const buildingLights: PointLight[] = [];
+const Colors = {
+  blue: 0x4d99ff, // #4d99ff
+  purple: 0x9a53ff, // #9a53ff
+  green: 0x33ff55, // #33ff55
+  pink: 0xff46b0, // #ff46b0
+  orange: 0xffaa50, // #ffaa50
+};
+const neonColors = Object.values(Colors);
+type NeonColor = (typeof Colors)[keyof typeof Colors];
+
+const buildingColorsAndMaterials = new Map<NeonColor, MeshStandardMaterial[]>();
+neonColors.forEach((color) => buildingColorsAndMaterials.set(color, []));
 
 const createBuilding = (
   x: number,
@@ -52,13 +63,13 @@ const createBuilding = (
   depth: number,
   height: number,
   color: number,
-  neon: number
+  neon: NeonColor
 ) => {
   const geometry = new BoxGeometry(width, height, depth);
   const material = new MeshStandardMaterial({
     color,
     emissive: new Color(neon),
-    emissiveIntensity: 0.6,
+    emissiveIntensity: 0, // will be updated based on audio
     metalness: 0.2,
     roughness: 0.25,
   });
@@ -66,15 +77,10 @@ const createBuilding = (
   const building = new Mesh(geometry, material);
   building.position.set(x, height / 2, z);
   scene.add(building);
-
-  const neonLight = new PointLight(neon, 0.1, 12, 2);
-  neonLight.position.set(x, height + 0.2, z);
-  scene.add(neonLight);
-  buildingLights.push(neonLight);
+  buildingColorsAndMaterials.get(neon)?.push(material);
 };
 
 const createCity = () => {
-  const neonColors = [0xff3d8f, 0x7f42ff, 0x1fd5ff, 0xffd34f];
   for (let ix = -7; ix <= 7; ix += 1.5) {
     const rowOffset = ix * 1.2;
     for (let iz = -2; iz <= 4; iz += 1.6) {
@@ -87,9 +93,9 @@ const createCity = () => {
     }
   }
 
-  createBuilding(0, -6, 2, 1.4, 11, 0x190532, 0xff46b0);
-  createBuilding(2.2, -5.5, 1.3, 1.3, 7.5, 0x1f1142, 0x4d99ff);
-  createBuilding(-2.4, -5.3, 1.1, 1.1, 6.4, 0x27103a, 0xffaa50);
+  // createBuilding(0, -6, 2, 1.4, 11, 0x190532, 0xff46b0);
+  // createBuilding(2.2, -5.5, 1.3, 1.3, 7.5, 0x1f1142, 0x4d99ff);
+  // createBuilding(-2.4, -5.3, 1.1, 1.1, 6.4, 0x27103a, 0xffaa50);
 };
 
 const groundGeometry = new PlaneGeometry(40, 60);
@@ -109,18 +115,30 @@ grid.rotation.x = Math.PI / 2;
 grid.position.y = 0.01;
 scene.add(grid);
 
-const ambientLight = new AmbientLight(0x8e4ff3, 0.1);
-scene.add(ambientLight);
+// const ambientLight = new AmbientLight(0x8e4ff3, 0.1);
+// scene.add(ambientLight);
 
 const keyLight = new PointLight(0x9a53ff, 0.1, 25, 2);
 keyLight.position.set(-12, 12, 10);
-scene.add(keyLight);
+// scene.add(keyLight);
 
 const fillLight = new PointLight(0x33b2ff, 0.1, 20, 2);
 fillLight.position.set(10, 8, -12);
-scene.add(fillLight);
+// scene.add(fillLight);
 
 // const lights = { ambientLight, keyLight, fillLight };
+
+// setInterval(() => {
+//   buildingMaterials.forEach((material) => {
+//     const emissiveIntensity = material.emissiveIntensity as number;
+//     const targetIntensity = 0.6 + Math.random() * 0.4;
+//     material.emissiveIntensity = THREE.MathUtils.lerp(
+//       emissiveIntensity,
+//       targetIntensity,
+//       0.1
+//     );
+//   });
+// }, 500);
 
 createCity();
 
@@ -143,41 +161,45 @@ const animate = () => {
   camera.position.y = 6 + Math.sin(time * 0.8) * 0.6;
   camera.lookAt(new Vector3(0, 3, 0));
 
-  // if (analyser && audioReady) {
-  //   const dataArray = analyser.getFrequencyData();
-
-  //   if (dataArray && dataArray.length > 0) {
-  //     const average = dataArray.reduce((a, b) => a + b) / dataArray.length;
-  //     const averageNormalized = Math.pow(average / 255, 0.5);
-
-  //     const lowFreqData = dataArray.slice(0, 8);
-  //     const midFreqData = dataArray.slice(8, 128);
-  //     const highFreqData = dataArray.slice(128, 256);
-
-  //     const lowFreq =
-  //       lowFreqData.length > 0 ? lowFreqData.reduce((a, b) => a + b) / lowFreqData.length : 0;
-  //     const midFreq =
-  //       midFreqData.length > 0 ? midFreqData.reduce((a, b) => a + b) / midFreqData.length : 0;
-  //     const highFreq =
-  //       highFreqData.length > 0 ? highFreqData.reduce((a, b) => a + b) / highFreqData.length : 0;
-
-  //     const lowNormalized = Math.pow(lowFreq / 255, 0.6);
-  //     const midNormalized = Math.pow(midFreq / 255, 0.6);
-  //     const highNormalized = Math.pow(highFreq / 255, 0.6);
-
-  //     lights.ambientLight.intensity = 0.1 + averageNormalized * 0.5;
-  //     lights.keyLight.intensity = 0.1 + lowNormalized * 1;
-  //     lights.fillLight.intensity = 0.1 + midNormalized * 0.8;
-
-  //     buildingLights.forEach((light, index) => {
-  //       const freqBand =
-  //         index % 3 === 0 ? lowNormalized : index % 3 === 1 ? midNormalized : highNormalized;
-  //       light.intensity = 0.1 + freqBand * 1.5;
-  //     });
-  //   }
-  // }
-
   renderer.render(scene, camera);
+  updateAudioReactiveElements();
+};
+
+const maxFrequency = 100;
+const colorToFrequencyBand = neonColors.reduce((map, color, index) => {
+  const start = Math.floor((index / neonColors.length) * maxFrequency);
+  const end = Math.floor(((index + 1) / neonColors.length) * maxFrequency);
+  return map.set(color, { start, end });
+}, new Map());
+
+console.log('Neon colors and their frequency bands:', colorToFrequencyBand);
+
+const updateAudioReactiveElements = () => {
+  if (analyser) {
+    const dataArray = analyser.getFrequencyData();
+
+    if (dataArray && dataArray.length > 0) {
+      // const average = dataArray.reduce((a, b) => a + b) / dataArray.length;
+      // const averageNormalized = Math.pow(average / 255, 0.5);
+
+      const freqBands = neonColors.map((color) => {
+        const { start, end } = colorToFrequencyBand.get(color)!;
+        const bandData = dataArray.slice(start, end);
+        return {
+          color,
+          frequency: bandData.length > 0 ? bandData.reduce((a, b) => a + b) / bandData.length : 0,
+        };
+      });
+
+      buildingColorsAndMaterials.entries().forEach(([neon, materials]) => {
+        materials.forEach((material) => {
+          const freqBand = freqBands.find((band) => band.color === neon)?.frequency || 0;
+          material.emissiveIntensity = freqBand > 0 ? 0.2 + (freqBand / maxFrequency) * 0.8 : 0;
+          // console.log(`Material ${index}: neon=${neon.toString(16)}, freqBand=${freqBand}, emissiveIntensity=${material.emissiveIntensity.toFixed(2)}`);
+        });
+      });
+    }
+  }
 };
 
 const startButton = document.getElementById('start-button')!;
@@ -193,7 +215,7 @@ const startAudio = () => {
   unlockAudioContext()
     .then(() => audioElement.play())
     .then(() => {
-      // analyser = new AudioAnalyser(sound, 256);
+      analyser = new AudioAnalyser(sound, 256);
       console.log('Audio started');
     })
     .catch((error) => {
@@ -214,5 +236,9 @@ startButton.addEventListener('click', startGame);
 startButton.addEventListener('touchend', startGame);
 
 document.addEventListener('click', startGame);
+
+if (new URLSearchParams(window.location.search).get('autoplay') === 'true') {
+  startGame();
+}
 
 console.log('Game initialized - tap to start audio');

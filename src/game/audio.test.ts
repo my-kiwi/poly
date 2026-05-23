@@ -90,4 +90,27 @@ describe('createAudioPlaybackController', () => {
     expect(audioElement.play).toHaveBeenCalledTimes(2);
     expect(controller.hasStarted()).toBe(true);
   });
+
+  it('retries playback when canplay fires after a blocked play attempt', async () => {
+    audioElement.play
+      .mockRejectedValueOnce(new Error('NotAllowedError'))
+      .mockResolvedValueOnce(undefined);
+
+    const controller = createAudioPlaybackController({
+      audioContext: audioContext as unknown as AudioContext,
+      audioElement: audioElement as unknown as HTMLAudioElement,
+      onError: vi.fn(),
+    });
+
+    controller.attachCanPlayRetry();
+
+    await expect(controller.start()).rejects.toThrow('NotAllowedError');
+    expect(audioElement.play).toHaveBeenCalledTimes(1);
+
+    audioElement.dispatchEvent('canplay');
+    await Promise.resolve();
+
+    expect(audioElement.play).toHaveBeenCalledTimes(2);
+    expect(controller.hasStarted()).toBe(true);
+  });
 });

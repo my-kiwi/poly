@@ -9,7 +9,9 @@ export const initializeAudio = (
   audioElement.loop = true;
   audioElement.crossOrigin = 'anonymous';
   audioElement.preload = 'auto';
+  (audioElement as unknown as { playsInline: boolean }).playsInline = true;
   audioElement.setAttribute('playsinline', '');
+  audioElement.setAttribute('webkit-playsinline', '');
 
   const sound = new THREE.Audio(audioListener);
   sound.setMediaElementSource(audioElement);
@@ -69,6 +71,10 @@ export const createAudioPlaybackController = ({
         await audioContext.resume();
       }
 
+      if (audioElement.readyState < HTMLMediaElement.HAVE_ENOUGH_DATA) {
+        audioElement.load();
+      }
+
       await audioElement.play();
       hasStartedPlayback = true;
       shouldRetryAfterCanPlay = false;
@@ -84,9 +90,11 @@ export const createAudioPlaybackController = ({
 
   return {
     attachCanPlayRetry: () => {
+      audioElement.addEventListener('canplay', retryIfNeeded);
       audioElement.addEventListener('canplaythrough', retryIfNeeded);
     },
     detachCanPlayRetry: () => {
+      audioElement.removeEventListener('canplay', retryIfNeeded);
       audioElement.removeEventListener('canplaythrough', retryIfNeeded);
     },
     hasStarted: () => hasStartedPlayback,

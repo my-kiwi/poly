@@ -249,7 +249,7 @@ const updateAudioReactiveElements = () => {
           frequency: bandData.length > 0 ? bandData.reduce((a, b) => a + b) / bandData.length : 0,
         };
       });
-      buildingColorsAndMaterials.entries().forEach(([neon, materials]) => {
+      buildingColorsAndMaterials.forEach((materials, neon) => {
         materials.forEach((material) => {
           const freqBand = freqBands.find((band) => band.color === neon)?.frequency || 0;
           material.emissiveIntensity = freqBand > 0 ? 0.2 + (freqBand / maxFrequency) * 0.8 : 0;

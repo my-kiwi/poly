@@ -12,9 +12,7 @@ import {
   PerspectiveCamera,
   PlaneGeometry,
   PointLight,
-  Raycaster,
   Scene,
-  Vector2,
   Vector3,
   WebGLRenderer,
 } from 'three';
@@ -56,8 +54,9 @@ const Colors = {
 const neonColors = Object.values(Colors);
 type NeonColor = (typeof Colors)[keyof typeof Colors];
 
-const buildingColorsAndMaterials = new Map<NeonColor, MeshStandardMaterial[]>();
-neonColors.forEach((color) => buildingColorsAndMaterials.set(color, []));
+const buildingColorsAndMaterials = new Map<NeonColor, MeshStandardMaterial[]>(
+  neonColors.map((color) => [color, [] as MeshStandardMaterial[]])
+);
 
 const createBuilding = (
   x: number,
@@ -72,7 +71,7 @@ const createBuilding = (
   const material = new MeshStandardMaterial({
     color,
     emissive: new Color(neon),
-    emissiveIntensity: 0, // will be updated based on audio
+    emissiveIntensity: 0.01, // will be updated based on audio
     metalness: 0.2,
     roughness: 0.25,
   });
@@ -80,7 +79,7 @@ const createBuilding = (
   const building = new Mesh(geometry, material);
   building.position.set(x, height / 2, z);
   scene.add(building);
-  buildingColorsAndMaterials.get(neon)?.push(material);
+  buildingColorsAndMaterials.get(neon)!.push(material);
 };
 
 const createCity = () => {
@@ -95,10 +94,6 @@ const createCity = () => {
       createBuilding(rowOffset, iz * 2.5, width, depth, height, color, neon);
     }
   }
-
-  // createBuilding(0, -6, 2, 1.4, 11, 0x190532, 0xff46b0);
-  // createBuilding(2.2, -5.5, 1.3, 1.3, 7.5, 0x1f1142, 0x4d99ff);
-  // createBuilding(-2.4, -5.3, 1.1, 1.1, 6.4, 0x27103a, 0xffaa50);
 };
 
 const groundGeometry = new PlaneGeometry(40, 60);
@@ -129,20 +124,6 @@ const fillLight = new PointLight(0x33b2ff, 0.1, 20, 2);
 fillLight.position.set(10, 8, -12);
 // scene.add(fillLight);
 
-// const lights = { ambientLight, keyLight, fillLight };
-
-// setInterval(() => {
-//   buildingMaterials.forEach((material) => {
-//     const emissiveIntensity = material.emissiveIntensity as number;
-//     const targetIntensity = 0.6 + Math.random() * 0.4;
-//     material.emissiveIntensity = THREE.MathUtils.lerp(
-//       emissiveIntensity,
-//       targetIntensity,
-//       0.1
-//     );
-//   });
-// }, 500);
-
 createCity();
 
 // Create the rotating polygon
@@ -151,7 +132,7 @@ const polygonGeometry = new IcosahedronGeometry(3);
 const polygonMaterial = new MeshStandardMaterial({
   color: 0x4d99ff,
   emissive: 0x4d99ff,
-  emissiveIntensity: 38,
+  emissiveIntensity: 30,
   metalness: 0.1,
   roughness: 1,
   transparent: true,
@@ -171,35 +152,6 @@ let animationProgress = 0;
 const finalCameraPos = { x: 0, y: 6, z: 20 };
 const startCameraPos = { x: 0, y: 5, z: 60 };
 
-const raycaster = new Raycaster();
-const mouse = new Vector2();
-
-const onPolygonClickMouse = (event: MouseEvent) => {
-  mouse.x = (event.clientX / window.innerWidth) * 2 - 1;
-  mouse.y = -(event.clientY / window.innerHeight) * 2 + 1;
-  raycaster.setFromCamera(mouse, camera);
-  const intersects = raycaster.intersectObject(polygon);
-
-  if (intersects.length > 0) {
-    startGame();
-  }
-};
-
-const onPolygonClickTouch = (event: TouchEvent) => {
-  const touch = event.touches[0] || event.changedTouches[0];
-  mouse.x = (touch.clientX / window.innerWidth) * 2 - 1;
-  mouse.y = -(touch.clientY / window.innerHeight) * 2 + 1;
-  raycaster.setFromCamera(mouse, camera);
-  const intersects = raycaster.intersectObject(polygon);
-
-  if (intersects.length > 0) {
-    startGame();
-  }
-};
-
-window.addEventListener('click', onPolygonClickMouse);
-window.addEventListener('touchend', onPolygonClickTouch);
-
 const resize = () => {
   const width = container.clientWidth || window.innerWidth;
   const height = container.clientHeight || window.innerHeight;
@@ -212,7 +164,6 @@ window.addEventListener('resize', resize);
 resize();
 
 const animate = () => {
-  requestAnimationFrame(animate);
   const time = performance.now() * 0.0001;
 
   // Handle camera animation when transitioning to game
@@ -237,6 +188,11 @@ const animate = () => {
     camera.position.x = Math.sin(time) * 12;
     camera.position.z = Math.cos(time) * 20;
     camera.position.y = 6 + Math.sin(time * 0.8) * 0.6;
+    try {
+      updateAudioReactiveElements();
+    } catch (error) {
+      console.error('Audio processing error', error);
+    }
   }
 
   camera.lookAt(new Vector3(0, 3, 0));
@@ -265,10 +221,10 @@ const animate = () => {
   }
 
   renderer.render(scene, camera);
-  updateAudioReactiveElements();
+  requestAnimationFrame(animate);
 };
 
-const maxFrequency = 100;
+const maxFrequency = 120;
 const colorToFrequencyBand = neonColors.reduce((map, color, index) => {
   const start = Math.floor((index / neonColors.length) * maxFrequency);
   const end = Math.floor(((index + 1) / neonColors.length) * maxFrequency);
@@ -293,12 +249,10 @@ const updateAudioReactiveElements = () => {
           frequency: bandData.length > 0 ? bandData.reduce((a, b) => a + b) / bandData.length : 0,
         };
       });
-
       buildingColorsAndMaterials.entries().forEach(([neon, materials]) => {
         materials.forEach((material) => {
           const freqBand = freqBands.find((band) => band.color === neon)?.frequency || 0;
           material.emissiveIntensity = freqBand > 0 ? 0.2 + (freqBand / maxFrequency) * 0.8 : 0;
-          // console.log(`Material ${index}: neon=${neon.toString(16)}, freqBand=${freqBand}, emissiveIntensity=${material.emissiveIntensity.toFixed(2)}`);
         });
       });
     }
@@ -327,10 +281,13 @@ const startAudio = () => {
 const startGame = () => {
   gameStarted = true;
   isAnimatingToGame = true;
-  window.removeEventListener('click', onPolygonClickMouse);
-  window.removeEventListener('touchend', onPolygonClickTouch);
+  window.removeEventListener('click', startGame);
+  window.removeEventListener('touchend', startGame);
   startAudio();
 };
+
+window.addEventListener('click', startGame);
+window.addEventListener('touchend', startGame);
 
 // Start the animation loop immediately
 animate();

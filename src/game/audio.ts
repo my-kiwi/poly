@@ -14,6 +14,7 @@ export const initializeAudio = (
 
   const sound = new THREE.Audio(audioListener);
   sound.setMediaElementSource(audioElement);
+  sound.setVolume(0.5);
 
   const audioPlaybackController = createAudioPlaybackController({
     audioContext: audioListener.context,

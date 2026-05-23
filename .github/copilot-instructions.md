@@ -39,10 +39,10 @@ This is a TypeScript/Vite frontend project with vitest for testing and ESLint fo
 ## Code Guidelines
 1. Write modular, reusable components
 2. Keep functions small and focused
-3. Use TypeScript types explicitly
 4. Add tests for new functionality
 5. Follow the existing code patterns in the project
 6. Ensure all code passes linting before commit
+7. Write concise code and don't create types when they're not needed - type inference works great
 
 ## Common Patterns
 - Use TypeScript for all new code

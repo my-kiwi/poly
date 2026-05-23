@@ -18,6 +18,8 @@ import {
 } from 'three';
 import * as THREE from 'three';
 
+import { createAudioPlaybackController } from './audioPlayback';
+
 const container = document.getElementById('game')!;
 
 const scene = new Scene();
@@ -38,9 +40,23 @@ const audioElement = new Audio('./audio/joshua_moses_where_we_end_up.mp3');
 audioElement.loop = true;
 audioElement.crossOrigin = 'anonymous';
 audioElement.preload = 'auto';
+audioElement.setAttribute('playsinline', '');
 
 const sound = new THREE.Audio(audioListener);
 sound.setMediaElementSource(audioElement);
+
+const audioPlaybackController = createAudioPlaybackController({
+  audioContext: audioListener.context,
+  audioElement,
+  onError: (error) => {
+    console.error('Audio start failed', error);
+  },
+  onStarted: () => {
+    analyser = new AudioAnalyser(sound, 256);
+    console.log('Audio started');
+  },
+});
+audioPlaybackController.attachCanPlayRetry();
 
 let analyser: AudioAnalyser;
 
@@ -259,35 +275,26 @@ const updateAudioReactiveElements = () => {
   }
 };
 
-const unlockAudioContext = () => {
-  if (audioListener.context.state === 'suspended') {
-    return audioListener.context.resume();
-  }
-  return Promise.resolve();
-};
-
 const startAudio = () => {
-  unlockAudioContext()
-    .then(() => audioElement.play())
-    .then(() => {
-      analyser = new AudioAnalyser(sound, 256);
-      console.log('Audio started');
-    })
-    .catch((error) => {
-      console.error('Audio start failed', error);
-    });
+  void audioPlaybackController.start();
 };
 
 const startGame = () => {
+  if (gameStarted) {
+    return;
+  }
+
   gameStarted = true;
   isAnimatingToGame = true;
   window.removeEventListener('click', startGame);
-  window.removeEventListener('touchend', startGame);
-  startAudio();
+  window.removeEventListener('touchstart', startGame);
+  window.removeEventListener('pointerdown', startGame);
+  void startAudio();
 };
 
 window.addEventListener('click', startGame);
-window.addEventListener('touchend', startGame);
+window.addEventListener('touchstart', startGame);
+window.addEventListener('pointerdown', startGame);
 
 // Start the animation loop immediately
 animate();

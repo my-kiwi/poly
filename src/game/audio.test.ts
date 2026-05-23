@@ -1,6 +1,6 @@
 import { beforeEach, describe, expect, it, vi } from 'vitest';
 
-import { createAudioPlaybackController } from './audioPlayback';
+import { createAudioPlaybackController } from './audio';
 
 type Listener = () => void;
 
@@ -50,7 +50,7 @@ describe('createAudioPlaybackController', () => {
     );
 
     const controller = createAudioPlaybackController({
-      audioContext,
+      audioContext: audioContext as unknown as AudioContext,
       audioElement: audioElement as unknown as HTMLAudioElement,
       onError: vi.fn(),
     });
@@ -74,7 +74,7 @@ describe('createAudioPlaybackController', () => {
       .mockResolvedValueOnce(undefined);
 
     const controller = createAudioPlaybackController({
-      audioContext,
+      audioContext: audioContext as unknown as AudioContext,
       audioElement: audioElement as unknown as HTMLAudioElement,
       onError: vi.fn(),
     });

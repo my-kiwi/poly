@@ -1,6 +1,5 @@
 import { AudioAnalyser, AudioListener } from 'three';
 import * as THREE from 'three';
-import { createAudioPlaybackController } from '../audioPlayback';
 
 export const initializeAudio = (
   audioListener: AudioListener,
@@ -32,5 +31,66 @@ export const initializeAudio = (
 
   return {
     startAudio: () => void audioPlaybackController.start(),
+  };
+};
+
+export const createAudioPlaybackController = ({
+  audioContext,
+  audioElement,
+  onError,
+  onStarted,
+}: {
+  audioContext: AudioContext;
+  audioElement: HTMLAudioElement;
+  onError?: (error: unknown) => void;
+  onStarted?: () => void;
+}) => {
+  let hasStartedPlayback = false;
+  let isStartingPlayback = false;
+  let shouldRetryAfterCanPlay = false;
+
+  const retryIfNeeded = () => {
+    if (!shouldRetryAfterCanPlay || hasStartedPlayback || isStartingPlayback) {
+      return;
+    }
+
+    void start();
+  };
+
+  const start = async () => {
+    if (hasStartedPlayback || isStartingPlayback) {
+      return;
+    }
+
+    isStartingPlayback = true;
+
+    try {
+      if (audioContext.state === 'suspended') {
+        await audioContext.resume();
+      }
+
+      await audioElement.play();
+      hasStartedPlayback = true;
+      shouldRetryAfterCanPlay = false;
+      onStarted?.();
+    } catch (error) {
+      shouldRetryAfterCanPlay = true;
+      onError?.(error);
+      throw error;
+    } finally {
+      isStartingPlayback = false;
+    }
+  };
+
+  return {
+    attachCanPlayRetry: () => {
+      audioElement.addEventListener('canplaythrough', retryIfNeeded);
+    },
+    detachCanPlayRetry: () => {
+      audioElement.removeEventListener('canplaythrough', retryIfNeeded);
+    },
+    hasStarted: () => hasStartedPlayback,
+    isStarting: () => isStartingPlayback,
+    start,
   };
 };

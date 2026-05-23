@@ -1,0 +1,84 @@
+import { AudioAnalyser, BoxGeometry, Color, Mesh, MeshStandardMaterial, Scene } from 'three';
+
+export const Colors = {
+  blue: 0x4d99ff,
+  purple: 0x9a53ff,
+  green: 0x33ff55,
+  pink: 0xff46b0,
+  orange: 0xffaa50,
+} as const;
+
+export const neonColors = Object.values(Colors) as number[];
+export const buildingColorsAndMaterials = new Map<number, MeshStandardMaterial[]>(
+  neonColors.map((color) => [color, [] as MeshStandardMaterial[]])
+);
+
+export const createBuilding = (
+  scene: Scene,
+  x: number,
+  z: number,
+  width: number,
+  depth: number,
+  height: number,
+  color: number,
+  neon: number
+) => {
+  const building = new Mesh(
+    new BoxGeometry(width, height, depth),
+    new MeshStandardMaterial({
+      color,
+      emissive: new Color(neon),
+      emissiveIntensity: 0.01,
+      metalness: 0.2,
+      roughness: 0.25,
+    })
+  );
+  building.position.set(x, height / 2, z);
+  scene.add(building);
+  buildingColorsAndMaterials.get(neon)!.push(building.material as MeshStandardMaterial);
+};
+
+export const createCity = (scene: Scene) => {
+  for (let ix = -7; ix <= 7; ix += 1.5) {
+    const rowOffset = ix * 1.2;
+    for (let iz = -2; iz <= 4; iz += 1.6) {
+      const width = Math.random() * 0.9 + 0.8;
+      const depth = Math.random() * 0.9 + 0.8;
+      const height = Math.random() * 4 + 2.5 + Math.abs(iz) * 0.8;
+      const neon = neonColors[Math.floor(Math.random() * neonColors.length)];
+      createBuilding(scene, rowOffset, iz * 2.5, width, depth, height, 0x101030, neon);
+    }
+  }
+};
+
+const maxFrequency = 120;
+export const colorToFrequencyBand = new Map(
+  neonColors.map((color, index) => {
+    const start = Math.floor((index / neonColors.length) * maxFrequency);
+    const end = Math.floor(((index + 1) / neonColors.length) * maxFrequency);
+    return [color, { start, end }] as const;
+  })
+);
+
+export const updateAudioReactiveElements = (analyser: AudioAnalyser) => {
+  const dataArray = analyser.getFrequencyData();
+  if (!dataArray || dataArray.length === 0) {
+    return;
+  }
+
+  const freqBands = neonColors.map((color) => {
+    const { start, end } = colorToFrequencyBand.get(color)!;
+    const bandData = dataArray.slice(start, end);
+    return {
+      color,
+      frequency: bandData.length > 0 ? bandData.reduce((a, b) => a + b) / bandData.length : 0,
+    };
+  });
+
+  buildingColorsAndMaterials.forEach((materials, neon) => {
+    const freqBand = freqBands.find((band) => band.color === neon)?.frequency || 0;
+    materials.forEach((material) => {
+      material.emissiveIntensity = freqBand > 0 ? 0.2 + (freqBand / maxFrequency) * 0.8 : 0;
+    });
+  });
+};

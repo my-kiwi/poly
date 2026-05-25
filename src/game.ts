@@ -1,6 +1,7 @@
 import * as THREE from 'three';
 import { AudioAnalyser, AudioListener, MeshStandardMaterial, Vector3 } from 'three';
 import { resumeAudioIfNeeded, startAudio } from './game/audio';
+import { requestWakeLock } from './game/screen-lock';
 
 import {
   createCamera,
@@ -120,6 +121,7 @@ const startGame = async () => {
     window.addEventListener('click', resumeAudioIfNeeded);
     window.addEventListener('touchstart', resumeAudioIfNeeded);
     window.addEventListener('pointerdown', resumeAudioIfNeeded);
+    requestWakeLock();
   } catch (error) {
     console.error('Failed to start game', error);
   }

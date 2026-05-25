@@ -1,104 +1,42 @@
-import { AudioAnalyser, AudioListener } from 'three';
 import * as THREE from 'three';
 
-export const initializeAudio = (
-  audioListener: AudioListener,
-  onStarted: (analyser: AudioAnalyser) => void
-) => {
-  const audioElement = new Audio('./audio/joshua_moses_where_we_end_up.mp3');
-  audioElement.loop = true;
-  audioElement.crossOrigin = 'anonymous';
-  audioElement.preload = 'auto';
-  (audioElement as unknown as { playsInline: boolean }).playsInline = true;
-  audioElement.setAttribute('playsinline', '');
-  audioElement.setAttribute('webkit-playsinline', '');
+const url = './audio/joshua_moses_where_we_end_up.mp3';
 
-  const sound = new THREE.Audio(audioListener);
-  sound.setMediaElementSource(audioElement);
-  sound.setVolume(0.5);
+const audioListener = new THREE.AudioListener();
+const audioContext = audioListener.context;
 
-  const audioPlaybackController = createAudioPlaybackController({
-    audioContext: audioListener.context,
-    audioElement,
-    onError: (error) => {
-      console.error('Audio start failed', error);
-    },
-    onStarted: () => {
-      onStarted(new AudioAnalyser(sound, 256));
-      console.log('Audio started');
-    },
-  });
+const audioElement = document.createElement('audio');
+audioElement.src = url;
+audioElement.loop = true;
+audioElement.crossOrigin = 'anonymous';
+audioElement.preload = 'auto';
+audioElement.volume = 0.1;
+audioElement.setAttribute('playsinline', '');
+audioElement.setAttribute('webkit-playsinline', '');
 
-  audioPlaybackController.attachCanPlayRetry();
+const sound = new THREE.Audio(audioListener);
+sound.setMediaElementSource(audioElement);
 
-  return {
-    startAudio: () => void audioPlaybackController.start(),
-  };
+export const startAudio = async () => {
+  try {
+    await audioContext.resume();
+    await audioElement.play();
+    sound.setVolume(1);
+    console.log('Audio started!');
+    return new THREE.AudioAnalyser(sound, 256);
+  } catch (error) {
+    console.error('Playback failed:', error);
+    throw error;
+  }
 };
 
-export const createAudioPlaybackController = ({
-  audioContext,
-  audioElement,
-  onError,
-  onStarted,
-}: {
-  audioContext: AudioContext;
-  audioElement: HTMLAudioElement;
-  onError?: (error: unknown) => void;
-  onStarted?: () => void;
-}) => {
-  let hasStartedPlayback = false;
-  let isStartingPlayback = false;
-  let shouldRetryAfterCanPlay = false;
-
-  const retryIfNeeded = () => {
-    if (!shouldRetryAfterCanPlay || hasStartedPlayback || isStartingPlayback) {
-      return;
-    }
-
-    void start();
-  };
-
-  const start = async () => {
-    if (hasStartedPlayback || isStartingPlayback) {
-      return;
-    }
-
-    isStartingPlayback = true;
-
+export const resumeAudioIfNeeded = async () => {
+  if (audioContext.state === 'suspended') {
     try {
-      if (audioContext.state === 'suspended') {
-        await audioContext.resume();
-      }
-
-      if (audioElement.readyState < HTMLMediaElement.HAVE_ENOUGH_DATA) {
-        audioElement.load();
-      }
-
-      await audioElement.play();
-      hasStartedPlayback = true;
-      shouldRetryAfterCanPlay = false;
-      onStarted?.();
+      await audioContext.resume();
+      console.log('Audio context resumed');
     } catch (error) {
-      shouldRetryAfterCanPlay = true;
-      onError?.(error);
-      throw error;
-    } finally {
-      isStartingPlayback = false;
+      console.error('Failed to resume audio context:', error);
     }
-  };
-
-  return {
-    attachCanPlayRetry: () => {
-      audioElement.addEventListener('canplay', retryIfNeeded);
-      audioElement.addEventListener('canplaythrough', retryIfNeeded);
-    },
-    detachCanPlayRetry: () => {
-      audioElement.removeEventListener('canplay', retryIfNeeded);
-      audioElement.removeEventListener('canplaythrough', retryIfNeeded);
-    },
-    hasStarted: () => hasStartedPlayback,
-    isStarting: () => isStartingPlayback,
-    start,
-  };
+  }
 };

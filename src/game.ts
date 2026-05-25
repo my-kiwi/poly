@@ -1,7 +1,7 @@
 import * as THREE from 'three';
 import { AudioAnalyser, AudioListener, MeshStandardMaterial, Vector3 } from 'three';
+import { resumeAudioIfNeeded, startAudio } from './game/audio';
 
-import { initializeAudio } from './game/audio';
 import {
   createCamera,
   createPolygon,
@@ -22,10 +22,8 @@ const audioListener = new AudioListener();
 camera.add(audioListener);
 
 let analyser: AudioAnalyser | undefined;
-const { startAudio } = initializeAudio(audioListener, (audioAnalyser) => {
-  analyser = audioAnalyser;
-});
 
+console.error('test');
 createCity(scene);
 setupEnvironment(scene);
 const polygon = createPolygon(scene);
@@ -66,11 +64,14 @@ const animate = () => {
     camera.position.y = 6 + Math.sin(time * 0.8) * 0.6;
 
     if (analyser) {
+      console.error(`Updating audio reactive elements - analyser available`);
       try {
         updateAudioReactiveElements(analyser);
       } catch (error) {
         console.error('Audio processing error', error);
       }
+    } else {
+      console.error('Audio analyser not available yet');
     }
   }
 
@@ -99,20 +100,29 @@ const animate = () => {
   }
 
   renderFrame(renderer, scene, camera);
-  requestAnimationFrame(animate);
+  renderer.setAnimationLoop(animate);
 };
 
-const startGame = () => {
-  if (gameStarted) {
-    return;
-  }
+const startGame = async () => {
+  try {
+    // if (analyser) {
+    //   return;
+    // }
 
-  gameStarted = true;
-  isAnimatingToGame = true;
-  window.removeEventListener('click', startGame);
-  window.removeEventListener('touchstart', startGame);
-  window.removeEventListener('pointerdown', startGame);
-  void startAudio();
+    gameStarted = true;
+    isAnimatingToGame = true;
+
+    analyser = await startAudio();
+    window.removeEventListener('click', startGame);
+    window.removeEventListener('touchstart', startGame);
+    window.removeEventListener('pointerdown', startGame);
+
+    window.addEventListener('click', resumeAudioIfNeeded);
+    window.addEventListener('touchstart', resumeAudioIfNeeded);
+    window.addEventListener('pointerdown', resumeAudioIfNeeded);
+  } catch (error) {
+    console.error('Failed to start game', error);
+  }
 };
 
 window.addEventListener('click', startGame);

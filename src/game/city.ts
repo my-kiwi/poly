@@ -51,7 +51,7 @@ export const createCity = (scene: Scene) => {
   }
 };
 
-const maxFrequency = 120;
+const maxFrequency = 100;
 export const colorToFrequencyBand = new Map(
   neonColors.map((color, index) => {
     const start = Math.floor((index / neonColors.length) * maxFrequency);

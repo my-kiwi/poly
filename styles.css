@@ -58,6 +58,48 @@ canvas {
   background: transparent;
 }
 
+.debug-error-panel {
+  position: fixed;
+  inset: auto 0 0;
+  z-index: 1000;
+  max-height: 35vh;
+  margin: 0 1rem 1rem;
+  padding: 0.75rem 1rem;
+  border: 1px solid rgba(255, 255, 255, 0.2);
+  border-radius: 12px;
+  background: rgba(6, 1, 14, 0.92);
+  box-shadow: 0 12px 40px rgba(0, 0, 0, 0.35);
+  color: #f8f8ff;
+  font-family: ui-monospace, SFMono-Regular, Menlo, monospace;
+  overflow: hidden;
+}
+
+.debug-error-panel__header {
+  margin-bottom: 0.5rem;
+  font-weight: 700;
+  letter-spacing: 0.02em;
+}
+
+.debug-error-panel__list {
+  display: flex;
+  flex-direction: column;
+  gap: 0.5rem;
+  max-height: calc(35vh - 2.5rem);
+  overflow-y: auto;
+}
+
+.debug-error-panel__entry {
+  margin: 0;
+  padding: 0.75rem;
+  border-radius: 8px;
+  background: rgba(255, 255, 255, 0.06);
+  color: #ffd6ea;
+  white-space: pre-wrap;
+  word-break: break-word;
+  font-size: 0.9rem;
+  line-height: 1.45;
+}
+
 #start-button {
   position: absolute;
   top: 50%;

@@ -1,4 +1,12 @@
-import { AudioAnalyser, BoxGeometry, Color, Mesh, MeshStandardMaterial, Scene } from 'three';
+import {
+  AudioAnalyser,
+  BoxGeometry,
+  Color,
+  Mesh,
+  MeshPhysicalMaterial,
+  MeshStandardMaterial,
+  Scene,
+} from 'three';
 
 export const Colors = {
   blue: 0x4d99ff,
@@ -7,6 +15,8 @@ export const Colors = {
   pink: 0xff46b0,
   orange: 0xffaa50,
 } as const;
+
+const greyColor = 0x101030;
 
 export const neonColors = Object.values(Colors) as number[];
 export const buildingColorsAndMaterials = new Map<number, MeshStandardMaterial[]>(
@@ -25,12 +35,15 @@ export const createBuilding = (
 ) => {
   const building = new Mesh(
     new BoxGeometry(width, height, depth),
-    new MeshStandardMaterial({
+    new MeshPhysicalMaterial({
       color,
-      emissive: new Color(neon),
+      emissive: new Color(greyColor),
       emissiveIntensity: 0.01,
-      metalness: 0.2,
+      metalness: 1,
       roughness: 0.25,
+      transmission: 0.1,
+      clearcoat: 1.0,
+      clearcoatRoughness: 0.03,
     })
   );
   building.position.set(x, height / 2, z);
@@ -78,7 +91,13 @@ export const updateAudioReactiveElements = (analyser: AudioAnalyser) => {
   buildingColorsAndMaterials.forEach((materials, neon) => {
     const freqBand = freqBands.find((band) => band.color === neon)?.frequency || 0;
     materials.forEach((material) => {
-      material.emissiveIntensity = freqBand > 0 ? 0.2 + (freqBand / maxFrequency) * 0.8 : 0;
+      if (freqBand > 0) {
+        material.emissive.setHex(neon);
+        material.emissiveIntensity = 0.2 + (freqBand / maxFrequency) * 0.8;
+      } else {
+        material.emissive.setHex(greyColor);
+        material.emissiveIntensity = 1;
+      }
     });
   });
 };

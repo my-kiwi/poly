@@ -3,7 +3,7 @@ import {
   GridHelper,
   IcosahedronGeometry,
   Mesh,
-  MeshStandardMaterial,
+  MeshPhysicalMaterial,
   PerspectiveCamera,
   PlaneGeometry,
   PointLight,
@@ -35,11 +35,14 @@ export const createRenderer = (container: HTMLElement) => {
 export const setupEnvironment = (scene: Scene) => {
   const ground = new Mesh(
     new PlaneGeometry(40, 60),
-    new MeshStandardMaterial({
+    new MeshPhysicalMaterial({
       color: 0x050613,
       emissive: 0x0b0e2b,
       roughness: 0.88,
       metalness: 0.1,
+      transmission: 0.9,
+      clearcoat: 1.0,
+      clearcoatRoughness: 0.03,
     })
   );
   ground.rotation.x = -Math.PI / 2;
@@ -63,7 +66,7 @@ export const setupEnvironment = (scene: Scene) => {
 export const createPolygon = (scene: Scene) => {
   const polygon = new Mesh(
     new IcosahedronGeometry(3),
-    new MeshStandardMaterial({
+    new MeshPhysicalMaterial({
       color: 0x4d99ff,
       emissive: 0x4d99ff,
       emissiveIntensity: 30,
@@ -71,6 +74,8 @@ export const createPolygon = (scene: Scene) => {
       roughness: 1,
       transparent: true,
       opacity: 1,
+      clearcoat: 1.0,
+      clearcoatRoughness: 0.03,
     })
   );
   polygon.position.set(0, 3, 10);

@@ -13,6 +13,7 @@ import {
   setupEnvironment,
 } from './game/scene';
 import { createCity, neonColors, updateAudioReactiveElements } from './game/city';
+import { addClickListener, removeClickListener } from './game/events';
 
 const container = document.getElementById('game')!;
 const scene = createScene();
@@ -24,7 +25,6 @@ camera.add(audioListener);
 
 let analyser: AudioAnalyser | undefined;
 
-console.error('test');
 createCity(scene);
 setupEnvironment(scene);
 const polygon = createPolygon(scene);
@@ -65,14 +65,13 @@ const animate = () => {
     camera.position.y = 6 + Math.sin(time * 0.8) * 0.6;
 
     if (analyser) {
-      console.error(`Updating audio reactive elements - analyser available`);
       try {
         updateAudioReactiveElements(analyser);
       } catch (error) {
         console.error('Audio processing error', error);
       }
     } else {
-      console.error('Audio analyser not available yet');
+      // console.error('Audio analyser not available yet');
     }
   }
 
@@ -105,31 +104,21 @@ const animate = () => {
 };
 
 const startGame = async () => {
+  console.log('Starting game...');
+  gameStarted = true;
+  isAnimatingToGame = true;
   try {
-    // if (analyser) {
-    //   return;
-    // }
-
-    gameStarted = true;
-    isAnimatingToGame = true;
-
+    removeClickListener(startGame);
     analyser = await startAudio();
-    window.removeEventListener('click', startGame);
-    window.removeEventListener('touchstart', startGame);
-    window.removeEventListener('pointerdown', startGame);
-
-    window.addEventListener('click', resumeAudioIfNeeded);
-    window.addEventListener('touchstart', resumeAudioIfNeeded);
-    window.addEventListener('pointerdown', resumeAudioIfNeeded);
-    requestWakeLock();
+    addClickListener(resumeAudioIfNeeded);
   } catch (error) {
     console.error('Failed to start game', error);
+    addClickListener(startGame);
   }
 };
 
-window.addEventListener('click', startGame);
-window.addEventListener('touchstart', startGame);
-window.addEventListener('pointerdown', startGame);
+addClickListener(startGame);
+addClickListener(requestWakeLock);
 
 animate();
 

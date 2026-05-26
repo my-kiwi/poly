@@ -1,7 +1,7 @@
 import * as THREE from 'three';
 import { AudioAnalyser, AudioListener, MeshStandardMaterial, Vector3 } from 'three';
 import { resumeAudioIfNeeded, startAudio } from './game/audio';
-import { requestWakeLock } from './game/screen-lock';
+import { requestWakeLock } from './utils/screen-lock';
 
 import {
   createCamera,
@@ -13,7 +13,7 @@ import {
   setupEnvironment,
 } from './game/scene';
 import { createCity, neonColors, updateAudioReactiveElements } from './game/city';
-import { addClickListener, removeClickListener } from './game/events';
+import { addClickListener, removeClickListener } from './utils/events';
 
 const container = document.getElementById('game')!;
 const scene = createScene();

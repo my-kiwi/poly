@@ -2,8 +2,9 @@ import * as THREE from 'three';
 
 const url = './audio/joshua_moses_where_we_end_up.mp3';
 
-const audioListener = new THREE.AudioListener();
-const audioContext = audioListener.context;
+let audioListener: THREE.AudioListener | null = null;
+let audioContext: AudioContext | null = null;
+let sound: THREE.Audio | null = null;
 
 const audioElement = document.createElement('audio');
 audioElement.src = url;
@@ -14,12 +15,12 @@ audioElement.volume = 0.1;
 audioElement.setAttribute('playsinline', '');
 audioElement.setAttribute('webkit-playsinline', '');
 
-const sound = new THREE.Audio(audioListener);
-sound.setMediaElementSource(audioElement);
-
 export const startAudio = async () => {
   try {
-    await audioContext.resume();
+    audioListener = new THREE.AudioListener();
+    audioContext = audioListener.context;
+    sound = new THREE.Audio(audioListener);
+    sound.setMediaElementSource(audioElement);
     await audioElement.play();
     sound.setVolume(1);
     console.log('Audio started!');
@@ -31,10 +32,11 @@ export const startAudio = async () => {
 };
 
 export const resumeAudioIfNeeded = async () => {
-  if (audioContext.state === 'suspended') {
+  console.log('Attempting to resume audio context if needed...' + audioContext?.state);
+  if (audioContext?.state !== 'running') {
     try {
-      await audioContext.resume();
-      console.log('Audio context resumed');
+      await audioContext?.resume();
+      console.log('Audio context resumed: ' + audioContext?.state);
     } catch (error) {
       console.error('Failed to resume audio context:', error);
     }

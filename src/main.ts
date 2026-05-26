@@ -1,7 +1,6 @@
-import { createDebugErrorPanel } from './utils/debug-panel';
+import { addDebugPanel } from './utils/debug-panel';
 
 window.addEventListener('DOMContentLoaded', () => {
-  const debugErrorPanel = createDebugErrorPanel();
-  debugErrorPanel.install();
+  addDebugPanel();
   import('./game');
 });

@@ -135,3 +135,10 @@ export const createDebugErrorPanel = () => {
     install,
   };
 };
+
+export const addDebugPanel = () => {
+  if (isDebugUrlEnabled()) {
+    const panel = createDebugErrorPanel();
+    panel.install();
+  }
+};

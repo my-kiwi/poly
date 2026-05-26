@@ -1,7 +1,7 @@
-import { createDebugErrorPanel, isDebugUrlEnabled } from './game/debug-error-panel';
+import { createDebugErrorPanel } from './utils/debug-panel';
 
 window.addEventListener('DOMContentLoaded', () => {
-  const debugErrorPanel = createDebugErrorPanel({ enabled: isDebugUrlEnabled() });
+  const debugErrorPanel = createDebugErrorPanel();
   debugErrorPanel.install();
   import('./game');
 });

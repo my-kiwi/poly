@@ -1,6 +1,6 @@
 import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest';
 
-import { createDebugErrorPanel } from './debug-error-panel';
+import { createDebugErrorPanel } from './debug-panel';
 
 describe('createDebugErrorPanel', () => {
   const originalConsoleError = console.error.bind(console);
@@ -15,7 +15,7 @@ describe('createDebugErrorPanel', () => {
   });
 
   it('renders console.error messages into the debug panel', () => {
-    const panel = createDebugErrorPanel({ enabled: true });
+    const panel = createDebugErrorPanel();
 
     panel.install();
     console.error('Audio start failed', { code: 'NotAllowedError' });
@@ -25,19 +25,9 @@ describe('createDebugErrorPanel', () => {
     panel.dispose();
   });
 
-  it('does not install any UI when disabled', () => {
-    const panel = createDebugErrorPanel({ enabled: false });
-
-    panel.install();
-    console.error('hidden error');
-
-    expect(document.body.querySelector('.debug-error-panel')).toBeNull();
-    panel.dispose();
-  });
-
   it('preserves the original console.error implementation', () => {
     const consoleErrorSpy = vi.fn();
-    const panel = createDebugErrorPanel({ enabled: true });
+    const panel = createDebugErrorPanel();
 
     panel.install();
     console.error = consoleErrorSpy as typeof console.error;

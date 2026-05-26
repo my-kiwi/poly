@@ -1,7 +1,3 @@
-export interface DebugErrorPanelOptions {
-  enabled?: boolean;
-}
-
 const MAX_ENTRIES = 200;
 
 const escapeText = (value: unknown) => {
@@ -34,10 +30,9 @@ export const isDebugUrlEnabled = () => {
   return debugValue?.toLowerCase() === 'true';
 };
 
-export const createDebugErrorPanel = ({ enabled = false }: DebugErrorPanelOptions = {}) => {
+export const createDebugErrorPanel = () => {
   const container = document.createElement('div');
   container.className = 'debug-error-panel';
-  container.hidden = !enabled;
 
   const header = document.createElement('div');
   header.className = 'debug-error-panel__header';
@@ -48,6 +43,8 @@ export const createDebugErrorPanel = ({ enabled = false }: DebugErrorPanelOption
 
   container.append(header, list);
 
+  const originalConsoleLog = console.log.bind(console);
+  const originalConsoleWarn = console.warn.bind(console);
   const originalConsoleError = console.error.bind(console);
   let isInstalled = false;
 
@@ -89,7 +86,7 @@ export const createDebugErrorPanel = ({ enabled = false }: DebugErrorPanelOption
   };
 
   const install = () => {
-    if (!enabled || isInstalled) {
+    if (isInstalled) {
       return;
     }
 
@@ -103,6 +100,16 @@ export const createDebugErrorPanel = ({ enabled = false }: DebugErrorPanelOption
       originalConsoleError(...args);
       addEntry(formatErrorMessage(args));
     }) as typeof console.error;
+
+    console.warn = ((...args: unknown[]) => {
+      originalConsoleWarn(...args);
+      addEntry(formatErrorMessage(args));
+    }) as typeof console.warn;
+
+    console.log = ((...args: unknown[]) => {
+      originalConsoleLog(...args);
+      addEntry(formatErrorMessage(args));
+    }) as typeof console.log;
 
     window.addEventListener('error', handleWindowError);
     window.addEventListener('unhandledrejection', handleUnhandledRejection);

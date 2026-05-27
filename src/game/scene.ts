@@ -60,27 +60,25 @@ export const setupEnvironment = (scene: Scene) => {
 
   const fillLight = new PointLight(0x33b2ff, 0.1, 20, 2);
   fillLight.position.set(10, 8, -12);
-  scene.add(fillLight);
-};
+  // scene.add(fillLight);
+  const radius = 10;
+  const sectors = 16;
+  const rings = 8;
+  const divisions = 64;
+  const helper = new THREE.PolarGridHelper(radius, sectors, rings, divisions);
+  scene.add(helper);
 
-export const createPolygon = (scene: Scene) => {
-  const polygon = new Mesh(
-    new IcosahedronGeometry(3),
-    new MeshPhysicalMaterial({
-      color: 0x4d99ff,
-      emissive: 0x4d99ff,
-      emissiveIntensity: 30,
-      metalness: 0.1,
-      roughness: 1,
-      transparent: true,
-      opacity: 1,
-      clearcoat: 1.0,
-      clearcoatRoughness: 0.03,
-    })
-  );
-  polygon.position.set(0, 3, 10);
-  scene.add(polygon);
-  return polygon;
+  const axesHelper = new THREE.AxesHelper(50);
+  scene.add(axesHelper);
+
+  // const dir = new THREE.Vector3( 1, 2, 0 );
+  // //normalize the direction vector (convert to vector of length 1)
+  // dir.normalize();
+  // const origin = new THREE.Vector3( 0, 0, 0 );
+  // const length = 1;
+  // const hex = 0xffff00;
+  // const arrowHelper = new THREE.ArrowHelper( dir, origin, length, hex );
+  // scene.add( arrowHelper );
 };
 
 export const resizeRenderer = (

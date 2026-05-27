@@ -26,6 +26,7 @@ export const startAudio = async () => {
     sound.setVolume(1);
     console.log('Audio started!');
     setTimeout(resumeAudioIfNeeded, 1000); // hack
+    // TODO add credits when song is over
     return new THREE.AudioAnalyser(sound, 256);
   } catch (error) {
     console.error('Playback failed:', error);

@@ -48,7 +48,8 @@ main {
   margin: 0;
   padding: 0;
   overflow: hidden;
-  background: radial-gradient(circle at top, #ff4fa2 0%, #1a0f40 25%, #06010e 55%, #02010b 100%);
+  /*background: radial-gradient(circle at top, #ff4fa2 0%, #1a0f40 25%, #06010e 55%, #02010b 100%);*/
+  background-color: #080620;
 }
 
 canvas {

@@ -5,15 +5,15 @@ import { requestWakeLock } from './utils/screen-lock';
 
 import {
   createCamera,
-  createPolygon,
   createRenderer,
   createScene,
   renderFrame,
   resizeRenderer,
   setupEnvironment,
 } from './game/scene';
-import { createCity, neonColors, updateAudioReactiveElements } from './game/city';
+import { createCity, updateAudioReactiveElements } from './game/city';
 import { addClickListener, removeClickListener } from './utils/events';
+import { createPolygon } from './game/start-polygon';
 
 const container = document.getElementById('game')!;
 const scene = createScene();
@@ -27,26 +27,23 @@ let analyser: AudioAnalyser | undefined;
 
 createCity(scene);
 setupEnvironment(scene);
-const polygon = createPolygon(scene);
+const { polygon, update: updatePolygonAnimation } = createPolygon(scene);
 
 let gameStarted = false;
 let isAnimatingToGame = false;
 let animationProgress = 0;
-const finalCameraPos = { x: 0, y: 6, z: 20 };
-const startCameraPos = { x: 0, y: 5, z: 60 };
-let currentColorIndex = 0;
-let nextColorIndex = 1;
-let colorLerpProgress = 0;
+const finalCameraPos = { x: 0, y: 0.1, z: -20 };
+const startCameraPos = { x: 0, y: 0.1, z: 60 };
 
 const resize = () => resizeRenderer(renderer, camera, container);
 window.addEventListener('resize', resize);
 resize();
 
-const animate = () => {
-  const time = performance.now() * 0.0001;
-
+const animate = (_time: number) => {
+  const time = _time * 0.0001;
+  updateAudioReactiveElements(analyser);
   if (isAnimatingToGame) {
-    animationProgress += 0.01;
+    animationProgress += 0.001;
     if (animationProgress >= 1) {
       animationProgress = 1;
       isAnimatingToGame = false;
@@ -62,41 +59,13 @@ const animate = () => {
   } else if (gameStarted) {
     camera.position.x = Math.sin(time) * 12;
     camera.position.z = Math.cos(time) * 20;
-    camera.position.y = 6 + Math.sin(time * 0.8) * 0.6;
-
-    if (analyser) {
-      try {
-        updateAudioReactiveElements(analyser);
-      } catch (error) {
-        console.error('Audio processing error', error);
-      }
-    } else {
-      // console.error('Audio analyser not available yet');
-    }
+    camera.position.y = 0.1; //6 + Math.sin(time * 0.8) * 0.6;
   }
 
   camera.lookAt(new Vector3(0, 3, 0));
 
   if (isAnimatingToGame || !gameStarted) {
-    polygon.rotation.x += 0.001;
-    polygon.rotation.y += 0.0008;
-    polygon.rotation.z += 0.006;
-
-    colorLerpProgress += 0.005;
-    if (colorLerpProgress >= 1) {
-      currentColorIndex = nextColorIndex;
-      nextColorIndex = (nextColorIndex + 1) % neonColors.length;
-      colorLerpProgress = 0;
-    }
-
-    const currentColor = neonColors[currentColorIndex];
-    const nextColor = neonColors[nextColorIndex];
-    const lerpedColor = new THREE.Color(currentColor).lerp(
-      new THREE.Color(nextColor),
-      colorLerpProgress
-    );
-    (polygon.material as MeshStandardMaterial).color.copy(lerpedColor);
-    (polygon.material as MeshStandardMaterial).emissive.copy(lerpedColor);
+    updatePolygonAnimation();
   }
 
   renderFrame(renderer, scene, camera);
@@ -120,7 +89,7 @@ const startGame = async () => {
 addClickListener(startGame);
 addClickListener(requestWakeLock);
 
-animate();
+animate(0);
 
 if (new URLSearchParams(window.location.search).get('autoplay') === 'true') {
   startGame();

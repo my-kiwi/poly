@@ -1,7 +1,6 @@
 import {
   FogExp2,
   GridHelper,
-  IcosahedronGeometry,
   Mesh,
   MeshPhysicalMaterial,
   PerspectiveCamera,
@@ -11,6 +10,8 @@ import {
   Vector3,
   WebGLRenderer,
 } from 'three';
+
+import * as THREE from 'three';
 
 export const createScene = () => {
   const scene = new Scene();
@@ -54,9 +55,15 @@ export const setupEnvironment = (scene: Scene) => {
   grid.position.y = 0.01;
   scene.add(grid);
 
+  const grid2 = new GridHelper(40, 40, 0x45124f, 0x080718);
+  grid2.rotation.x = Math.PI / 2;
+  grid2.position.y = 0.01;
+  grid2.rotation.z = Math.PI / 2;
+  scene.add(grid2);
+
   const keyLight = new PointLight(0x9a53ff, 0.1, 25, 2);
   keyLight.position.set(-12, 12, 10);
-  scene.add(keyLight);
+  // scene.add(keyLight);
 
   const fillLight = new PointLight(0x33b2ff, 0.1, 20, 2);
   fillLight.position.set(10, 8, -12);

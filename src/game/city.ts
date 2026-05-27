@@ -73,8 +73,8 @@ export const colorToFrequencyBand = new Map(
   })
 );
 
-export const updateAudioReactiveElements = (analyser: AudioAnalyser) => {
-  const dataArray = analyser.getFrequencyData();
+export const updateAudioReactiveElements = (analyser?: AudioAnalyser) => {
+  const dataArray = analyser?.getFrequencyData();
   if (!dataArray || dataArray.length === 0) {
     return;
   }

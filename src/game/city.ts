@@ -17,6 +17,7 @@ export const Colors = {
 } as const;
 
 const greyColor = 0x101030;
+const startColor = Colors.blue;
 
 export const neonColors = Object.values(Colors) as number[];
 export const buildingColorsAndMaterials = new Map<number, MeshStandardMaterial[]>(
@@ -37,8 +38,8 @@ export const createBuilding = (
     new BoxGeometry(width, height, depth),
     new MeshPhysicalMaterial({
       color,
-      emissive: new Color(greyColor),
-      emissiveIntensity: 0.01,
+      emissive: neon === startColor ? new Color(neon) : new Color(greyColor),
+      emissiveIntensity: neon === startColor ? 1 : 0.01,
       metalness: 1,
       roughness: 0.25,
       transmission: 0.1,

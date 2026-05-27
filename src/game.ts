@@ -1,5 +1,5 @@
-import * as THREE from 'three';
-import { AudioAnalyser, AudioListener, MeshStandardMaterial, Vector3 } from 'three';
+// import * as THREE from 'three';
+import { AudioAnalyser, AudioListener } from 'three';
 import { resumeAudioIfNeeded, startAudio } from './game/audio';
 import { requestWakeLock } from './utils/screen-lock';
 
@@ -12,7 +12,6 @@ import {
 } from './game/scene';
 import { createCity, updateAudioReactiveElements } from './game/city';
 import { addClickListener, removeClickListener } from './utils/events';
-import { createPolygon } from './game/start-polygon';
 import { createCamera } from './game/camera';
 
 const container = document.getElementById('game')!;
@@ -27,20 +26,21 @@ let analyser: AudioAnalyser | undefined;
 
 createCity(scene);
 setupEnvironment(scene);
-const { polygon, update: updatePolygonAnimation } = createPolygon(scene);
+// const { polygon, update: updatePolygonAnimation } = createPolygon(scene);
 
 let gameStarted = false;
 let isAnimatingToGame = false;
 let animationProgress = 0;
-const finalCameraPos = { x: 0, y: 0.1, z: -20 };
-const startCameraPos = { x: 0, y: 0.1, z: 60 };
+// const finalCameraPos = new THREE.Vector3(0, 0.1, -20);
+// const startCameraPos = new THREE.Vector3(0, 0.1, 60);
 
 const resize = () => resizeRenderer(renderer, camera, container);
 window.addEventListener('resize', resize);
 resize();
 
 const animate = (_time: number) => {
-  const time = _time * 0.0001;
+  console.log(_time);
+  // const time = _time * 0.0001;
   updateAudioReactiveElements(analyser);
   if (isAnimatingToGame) {
     animationProgress += 0.001;
@@ -49,24 +49,25 @@ const animate = (_time: number) => {
       isAnimatingToGame = false;
     }
 
-    camera.position.x = THREE.MathUtils.lerp(startCameraPos.x, finalCameraPos.x, animationProgress);
-    camera.position.y = THREE.MathUtils.lerp(startCameraPos.y, finalCameraPos.y, animationProgress);
-    camera.position.z = THREE.MathUtils.lerp(startCameraPos.z, finalCameraPos.z, animationProgress);
+    // camera.position.x = THREE.MathUtils.lerp(startCameraPos.x, finalCameraPos.x, animationProgress);
+    // camera.position.y = THREE.MathUtils.lerp(startCameraPos.y, finalCameraPos.y, animationProgress);
+    // camera.position.z = THREE.MathUtils.lerp(startCameraPos.z, finalCameraPos.z, animationProgress);
+    // // camera.lookAt(finalCameraPos);
 
-    const opacity = 1 - animationProgress;
-    (polygon.material as MeshStandardMaterial).opacity = opacity;
-    (polygon.material as MeshStandardMaterial).emissiveIntensity = 0.8 * opacity;
+    // const opacity = 1 - animationProgress;
+    // (polygon.material as MeshStandardMaterial).opacity = opacity;
+    // (polygon.material as MeshStandardMaterial).emissiveIntensity = 0.8 * opacity;
   } else if (gameStarted) {
-    camera.position.x = Math.sin(time) * 12;
-    camera.position.z = Math.cos(time) * 20;
-    camera.position.y = 0.1; //6 + Math.sin(time * 0.8) * 0.6;
+    // camera.position.x = Math.sin(time) * 12;
+    // camera.position.z = Math.cos(time) * 20;
+    // camera.position.y = 0.1; //6 + Math.sin(time * 0.8) * 0.6;
   }
 
-  camera.lookAt(new Vector3(0, 3, 0));
+  // camera.lookAt(new Vector3(0, 3, 0));
 
-  if (isAnimatingToGame || !gameStarted) {
-    updatePolygonAnimation();
-  }
+  // if (isAnimatingToGame || !gameStarted) {
+  //   updatePolygonAnimation();
+  // }
   updateCamera();
   renderFrame(renderer, scene, camera);
   renderer.setAnimationLoop(animate);

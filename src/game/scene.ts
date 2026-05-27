@@ -39,8 +39,6 @@ export const setupEnvironment = (scene: Scene) => {
   ground.position.y = 0;
   scene.add(ground);
 
-
-
   // const grid = new GridHelper(40, 40, 0x45124f, 0x080718);
   // grid.rotation.x = Math.PI / 2;
   // grid.position.y = 0.01;

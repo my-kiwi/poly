@@ -31,6 +31,7 @@ setupEnvironment(scene);
 let gameStarted = false;
 let isAnimatingToGame = false;
 let animationProgress = 0;
+let lastFrameTime = 0;
 const startCameraPos = camera.position.clone();
 const finalCameraPos = startCameraPos.clone().setY(0.1).setZ(20);
 
@@ -38,13 +39,13 @@ const resize = () => resizeRenderer(renderer, camera, container);
 window.addEventListener('resize', resize);
 resize();
 
-const animate = (_time: number) => {
-  const time = _time * 0.0001;
+const animate = (time: number) => {
+  const deltaTime = time - lastFrameTime;
+  lastFrameTime = time;
 
   updateAudioReactiveElements(analyser);
   if (isAnimatingToGame) {
-    console.log('Animating frame, time:', time);
-    animationProgress += 0.001;
+    animationProgress += deltaTime * 0.0001;
     if (animationProgress >= 1) {
       animationProgress = 1;
       isAnimatingToGame = false;

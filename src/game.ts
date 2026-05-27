@@ -4,7 +4,6 @@ import { resumeAudioIfNeeded, startAudio } from './game/audio';
 import { requestWakeLock } from './utils/screen-lock';
 
 import {
-  createCamera,
   createRenderer,
   createScene,
   renderFrame,
@@ -14,10 +13,11 @@ import {
 import { createCity, updateAudioReactiveElements } from './game/city';
 import { addClickListener, removeClickListener } from './utils/events';
 import { createPolygon } from './game/start-polygon';
+import { createCamera } from './game/camera';
 
 const container = document.getElementById('game')!;
 const scene = createScene();
-const camera = createCamera();
+const { camera, update: updateCamera } = createCamera();
 const renderer = createRenderer(container);
 const audioListener = new AudioListener();
 
@@ -67,7 +67,7 @@ const animate = (_time: number) => {
   if (isAnimatingToGame || !gameStarted) {
     updatePolygonAnimation();
   }
-
+  updateCamera();
   renderFrame(renderer, scene, camera);
   renderer.setAnimationLoop(animate);
 };

@@ -7,7 +7,6 @@ import {
   PlaneGeometry,
   PointLight,
   Scene,
-  Vector3,
   WebGLRenderer,
 } from 'three';
 
@@ -17,13 +16,6 @@ export const createScene = () => {
   const scene = new Scene();
   scene.fog = new FogExp2(0x07061a, 0.028);
   return scene;
-};
-
-export const createCamera = () => {
-  const camera = new PerspectiveCamera(45, 1, 0.1, 100);
-  camera.position.set(0, 5, 60);
-  camera.lookAt(new Vector3(0, 3, 0));
-  return camera;
 };
 
 export const createRenderer = (container: HTMLElement) => {

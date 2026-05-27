@@ -55,10 +55,6 @@ const animate = (time: number) => {
     camera.position.y = THREE.MathUtils.lerp(startCameraPos.y, finalCameraPos.y, animationProgress);
     camera.position.z = THREE.MathUtils.lerp(startCameraPos.z, finalCameraPos.z, animationProgress);
     // // camera.lookAt(finalCameraPos);
-
-    // const opacity = 1 - animationProgress;
-    // (polygon.material as MeshStandardMaterial).opacity = opacity;
-    // (polygon.material as MeshStandardMaterial).emissiveIntensity = 0.8 * opacity;
   } else if (gameStarted) {
     // camera.position.x = Math.sin(time) * 12;
     // camera.position.z = Math.cos(time) * 20;
@@ -66,10 +62,6 @@ const animate = (time: number) => {
   }
 
   // camera.lookAt(new Vector3(0, 3, 0));
-
-  // if (isAnimatingToGame || !gameStarted) {
-  //   updatePolygonAnimation();
-  // }
   updateCamera();
   renderFrame(renderer, scene, camera);
   renderer.setAnimationLoop(animate);

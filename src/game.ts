@@ -33,7 +33,7 @@ let isAnimatingToGame = false;
 let animationProgress = 0;
 let lastFrameTime = 0;
 const startCameraPos = camera.position.clone();
-const finalCameraPos = startCameraPos.clone().setY(0.1).setZ(20);
+const finalCameraPos = startCameraPos.clone().setY(0.5).setZ(20);
 
 const resize = () => resizeRenderer(renderer, camera, container);
 window.addEventListener('resize', resize);
@@ -45,7 +45,7 @@ const animate = (time: number) => {
 
   updateAudioReactiveElements(analyser);
   if (isAnimatingToGame) {
-    animationProgress += deltaTime * 0.0001;
+    animationProgress += deltaTime * 0.0002;
     if (animationProgress >= 1) {
       animationProgress = 1;
       isAnimatingToGame = false;
@@ -56,6 +56,7 @@ const animate = (time: number) => {
     camera.position.z = THREE.MathUtils.lerp(startCameraPos.z, finalCameraPos.z, animationProgress);
     // // camera.lookAt(finalCameraPos);
   } else if (gameStarted) {
+    camera.position.z += deltaTime * 0.002;
     // camera.position.x = Math.sin(time) * 12;
     // camera.position.z = Math.cos(time) * 20;
     // camera.position.y = 0.1; //6 + Math.sin(time * 0.8) * 0.6;
@@ -73,7 +74,7 @@ const startGame = async () => {
   setTimeout(() => {
     gameStarted = true;
     isAnimatingToGame = true;
-  }, 6000);
+  }, 5500);
   try {
     removeClickListener(startGame);
     analyser = await startAudio();

@@ -1,6 +1,5 @@
 import {
   FogExp2,
-  GridHelper,
   Mesh,
   MeshPhysicalMaterial,
   PerspectiveCamera,
@@ -9,8 +8,6 @@ import {
   Scene,
   WebGLRenderer,
 } from 'three';
-
-import * as THREE from 'three';
 
 export const createScene = () => {
   const scene = new Scene();
@@ -42,16 +39,18 @@ export const setupEnvironment = (scene: Scene) => {
   ground.position.y = 0;
   scene.add(ground);
 
-  const grid = new GridHelper(40, 40, 0x45124f, 0x080718);
-  grid.rotation.x = Math.PI / 2;
-  grid.position.y = 0.01;
-  scene.add(grid);
 
-  const grid2 = new GridHelper(40, 40, 0x45124f, 0x080718);
-  grid2.rotation.x = Math.PI / 2;
-  grid2.position.y = 0.01;
-  grid2.rotation.z = Math.PI / 2;
-  scene.add(grid2);
+
+  // const grid = new GridHelper(40, 40, 0x45124f, 0x080718);
+  // grid.rotation.x = Math.PI / 2;
+  // grid.position.y = 0.01;
+  // scene.add(grid);
+
+  // const grid2 = new GridHelper(40, 40, 0x45124f, 0x080718);
+  // grid2.rotation.x = Math.PI / 2;
+  // grid2.position.y = 0.01;
+  // grid2.rotation.z = Math.PI / 2;
+  // scene.add(grid2);
 
   const keyLight = new PointLight(0x9a53ff, 0.1, 25, 2);
   keyLight.position.set(-12, 12, 10);
@@ -60,15 +59,15 @@ export const setupEnvironment = (scene: Scene) => {
   const fillLight = new PointLight(0x33b2ff, 0.1, 20, 2);
   fillLight.position.set(10, 8, -12);
   // scene.add(fillLight);
-  const radius = 10;
-  const sectors = 16;
-  const rings = 8;
-  const divisions = 64;
-  const helper = new THREE.PolarGridHelper(radius, sectors, rings, divisions);
-  scene.add(helper);
+  // const radius = 10;
+  // const sectors = 16;
+  // const rings = 8;
+  // const divisions = 64;
+  // const helper = new THREE.PolarGridHelper(radius, sectors, rings, divisions);
+  // scene.add(helper);
 
-  const axesHelper = new THREE.AxesHelper(50);
-  scene.add(axesHelper);
+  // const axesHelper = new THREE.AxesHelper(50);
+  // scene.add(axesHelper);
 
   // const dir = new THREE.Vector3( 1, 2, 0 );
   // //normalize the direction vector (convert to vector of length 1)

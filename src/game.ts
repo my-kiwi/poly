@@ -32,7 +32,7 @@ let gameStarted = false;
 let isAnimatingToGame = false;
 let animationProgress = 0;
 const startCameraPos = camera.position.clone();
-const finalCameraPos = startCameraPos.clone().setY(0.1);
+const finalCameraPos = startCameraPos.clone().setY(0.1).setZ(20);
 
 const resize = () => resizeRenderer(renderer, camera, container);
 window.addEventListener('resize', resize);
@@ -40,8 +40,10 @@ resize();
 
 const animate = (_time: number) => {
   const time = _time * 0.0001;
+
   updateAudioReactiveElements(analyser);
   if (isAnimatingToGame) {
+    console.log('Animating frame, time:', time);
     animationProgress += 0.001;
     if (animationProgress >= 1) {
       animationProgress = 1;
@@ -57,9 +59,9 @@ const animate = (_time: number) => {
     // (polygon.material as MeshStandardMaterial).opacity = opacity;
     // (polygon.material as MeshStandardMaterial).emissiveIntensity = 0.8 * opacity;
   } else if (gameStarted) {
-    camera.position.x = Math.sin(time) * 12;
-    camera.position.z = Math.cos(time) * 20;
-    camera.position.y = 0.1; //6 + Math.sin(time * 0.8) * 0.6;
+    // camera.position.x = Math.sin(time) * 12;
+    // camera.position.z = Math.cos(time) * 20;
+    // camera.position.y = 0.1; //6 + Math.sin(time * 0.8) * 0.6;
   }
 
   // camera.lookAt(new Vector3(0, 3, 0));

@@ -53,14 +53,14 @@ export const createBuilding = (
 };
 
 export const createCity = (scene: Scene) => {
-  for (let ix = -7; ix <= 7; ix += 1.5) {
+  for (let ix = -70; ix <= 70; ix += 1.5) {
     const rowOffset = ix * 1.2;
-    for (let iz = -2; iz <= 4; iz += 1.6) {
+    for (let iz = -20; iz <= 40; iz += 1.6) {
       const width = Math.random() * 0.9 + 0.8;
       const depth = Math.random() * 0.9 + 0.8;
       const height = Math.random() * 4 + 2.5 + Math.abs(iz) * 0.8;
       const neon = neonColors[Math.floor(Math.random() * neonColors.length)];
-      createBuilding(scene, rowOffset, iz * 2.5, width, depth, height, 0x101030, neon);
+      createBuilding(scene, iz * 2.5, rowOffset, width, depth, height, 0x101030, neon);
     }
   }
 };

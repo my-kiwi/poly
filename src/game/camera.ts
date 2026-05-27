@@ -3,8 +3,8 @@ import * as THREE from 'three';
 import { OrbitControls } from 'three/addons/controls/OrbitControls.js';
 
 export const createCamera = () => {
-  const camera = new PerspectiveCamera(90, 1, 0.1, 200);
-  camera.position.set(0, 30, 0);
+  const camera = new PerspectiveCamera(120, 1, 0.1, 200);
+  camera.position.set(0, 50, 0);
   camera.lookAt(new Vector3(0, 3, 0));
   // Orbit controls for free camera mode
   const orbitControls = new OrbitControls(camera, document.body);

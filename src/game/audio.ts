@@ -19,11 +19,13 @@ export const startAudio = async () => {
   try {
     audioListener = new THREE.AudioListener();
     audioContext = audioListener.context;
+    resumeAudioIfNeeded(); // do not await, sometimes never resolves/reject
     sound = new THREE.Audio(audioListener);
     sound.setMediaElementSource(audioElement);
     await audioElement.play();
     sound.setVolume(1);
     console.log('Audio started!');
+    setTimeout(resumeAudioIfNeeded, 1000); // hack
     return new THREE.AudioAnalyser(sound, 256);
   } catch (error) {
     console.error('Playback failed:', error);

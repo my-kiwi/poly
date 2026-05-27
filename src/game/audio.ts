@@ -8,7 +8,7 @@ let sound: THREE.Audio | null = null;
 
 const audioElement = document.createElement('audio');
 audioElement.src = url;
-audioElement.loop = true;
+audioElement.loop = false;
 audioElement.crossOrigin = 'anonymous';
 audioElement.preload = 'auto';
 audioElement.volume = 0.1;

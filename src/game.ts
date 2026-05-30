@@ -16,8 +16,9 @@ import { createCamera } from './game/camera';
 
 const container = document.getElementById('game')!;
 const scene = createScene();
-const { camera, update: updateCamera } = createCamera();
 const renderer = createRenderer(container);
+const { camera, update: updateCamera } = createCamera(renderer);
+
 const audioListener = new AudioListener();
 
 camera.add(audioListener);

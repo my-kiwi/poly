@@ -118,3 +118,64 @@ canvas {
   border:#ff4fa2 2px solid;
   transition: background-color 0.3s, color 0.3s, border-color 0.3s;
 }
+
+#game {
+  position: relative;
+}
+
+.credits-overlay {
+  position: absolute;
+  z-index: 500000;
+  top: 50%;
+  left: 50%;
+  transform: translate(-50%, -50%);
+  max-width: min(420px, 90%);
+  width: 100%;
+  padding: 1.5rem 1.75rem;
+  border: 1px solid rgba(255, 255, 255, 0.18);
+  border-radius: 18px;
+  background: transparent;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 1rem;
+  text-align: center;
+  pointer-events: auto;
+  cursor: default;
+}
+
+.credits-overlay.hidden {
+  display: none;
+}
+
+.credits-overlay__title {
+  font-size: 1.75rem;
+  font-weight: 700;
+}
+
+.credits-overlay__item,
+.credits-overlay__link {
+  font-size: 1rem;
+  line-height: 1.4;
+}
+
+.credits-overlay__link {
+  text-decoration: underline;
+}
+
+.credits-overlay__button {
+  min-width: 160px;
+  padding: 0.9rem 1.25rem;
+  border: 1px solid currentColor;
+  border-radius: 999px;
+  background: transparent;
+  color: inherit;
+  font-size: 1rem;
+  cursor: pointer;
+  transition: transform 0.18s ease, background-color 0.18s ease;
+}
+
+.credits-overlay__button:hover {
+  transform: scale(1.04);
+  background: rgba(255, 255, 255, 0.08);
+}

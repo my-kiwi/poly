@@ -1,4 +1,5 @@
 import * as THREE from 'three';
+import { hideCreditsOverlay, showCreditsOverlay } from './credits';
 
 const url = './audio/joshua_moses_where_we_end_up.mp3';
 
@@ -26,7 +27,8 @@ export const startAudio = async () => {
     sound.setVolume(1);
     console.log('Audio started!');
     setTimeout(resumeAudioIfNeeded, 1000); // hack
-    // TODO add credits when song is over
+    audioElement.addEventListener('ended', showCreditsOverlay, { once: true });
+    hideCreditsOverlay();
     return new THREE.AudioAnalyser(sound, 256);
   } catch (error) {
     console.error('Playback failed:', error);

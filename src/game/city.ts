@@ -52,6 +52,15 @@ export const createBuilding = (
   buildingColorsAndMaterials.get(neon)!.push(building.material as MeshStandardMaterial);
 };
 
+export const setDefaultBuildingColors = () => {
+  buildingColorsAndMaterials.forEach((materials, neon) => {
+    materials.forEach((material) => {
+      material.emissive.setHex(neon === startColor ? neon : greyColor);
+      material.emissiveIntensity = neon === startColor ? 1 : 0.01;
+    });
+  });
+};
+
 export const createCity = (scene: Scene) => {
   for (let ix = -70; ix <= 70; ix += 1.5) {
     const rowOffset = ix * 1.2;

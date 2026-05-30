@@ -1,5 +1,5 @@
 import { removeWindowEventListeners } from '../utils/events';
-import { neonColors } from './city';
+import { neonColors, setDefaultBuildingColors } from './city';
 
 let creditsOverlay: HTMLDivElement | null = null;
 
@@ -56,6 +56,7 @@ const ensureCreditsOverlay = () => {
 export const showCreditsOverlay = () => {
   const overlay = ensureCreditsOverlay();
   overlay.classList.remove('hidden');
+  setDefaultBuildingColors();
 };
 
 export const hideCreditsOverlay = () => {

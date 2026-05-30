@@ -12,6 +12,8 @@ export const createCamera = (renderer: THREE.WebGLRenderer) => {
   orbitControls.maxPolarAngle = THREE.MathUtils.degToRad(90);
   orbitControls.target.set(0, 0, 0);
   orbitControls.enabled = true;
+  orbitControls.autoRotate = true;
+  orbitControls.autoRotateSpeed = 0.1;
 
   orbitControls.cursorStyle = 'grab';
   orbitControls.update();

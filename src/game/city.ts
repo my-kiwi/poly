@@ -62,7 +62,6 @@ export const setDefaultBuildingColors = () => {
     materials.forEach((material) => {
       material.emissive.setHex(neon === startColor ? neon : greyColor);
       material.emissiveIntensity = neon === startColor ? 1 : 0.01;
-      material.opacity = startOpacity;
     });
   });
 };

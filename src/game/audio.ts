@@ -47,3 +47,7 @@ export const resumeAudioIfNeeded = async () => {
     }
   }
 };
+
+export const getAudioCompletedPercentage = () => {
+  return audioElement.currentTime / audioElement.duration;
+};

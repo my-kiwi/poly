@@ -1,7 +1,7 @@
 # Copilot Instructions
 
 ## Project Overview
-This is a TypeScript/Vite frontend project with vitest for testing and ESLint for code quality.
+This is a Threejs experiment that use the AudioAnalyser to show psychedelic visuals that react to a background music and make the user feel like in a dream, where anything can happen.
 
 ## Code Style & Standards
 - **Language**: TypeScript (strict mode)
@@ -19,15 +19,7 @@ This is a TypeScript/Vite frontend project with vitest for testing and ESLint fo
 
 ## Key Components
 - `main.ts` - Application entry point
-- `App.ts` - Main application component
-- `Counter.ts` - Counter component
-- `GithubLink.ts` - GitHub link component
-
-## Testing Requirements
-- Use vitest for all unit tests
-- Test files should match the pattern `*.test.ts`
-- Run tests with `npm run test`
-- Ensure good test coverage for new features
+- `utils/` - Utility functions that can be re-used in other projects
 
 ## Build & Development
 - Development: `npm run dev`
@@ -37,9 +29,10 @@ This is a TypeScript/Vite frontend project with vitest for testing and ESLint fo
 - Test: `npm run test`
 
 ## Code Guidelines
-1. Write modular, reusable components
+1. Write modular, reusable components that follow the Single Responsibility Principle, create new files for new components and utilities as needed
 2. Keep functions small and focused
-4. Add tests for new functionality
+3. Add comments to explain complex logic
+4. Do not create new classes or types unless necessary - prefer simple functions and objects
 5. Follow the existing code patterns in the project
 6. Ensure all code passes linting before commit
 7. Write concise code and don't create types when they're not needed - type inference works great

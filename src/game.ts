@@ -10,7 +10,7 @@ import {
   resizeRenderer,
   setupEnvironment,
 } from './game/scene';
-import { createCity, updateAudioReactiveElements } from './game/city';
+import { createCity, updateAudioReactiveElements, Colors } from './game/city';
 import { addClickListener, removeClickListener } from './utils/events';
 import { createCamera } from './game/camera';
 
@@ -26,7 +26,7 @@ camera.add(audioListener);
 let analyser: AudioAnalyser | undefined;
 
 createCity(scene);
-setupEnvironment(scene);
+setupEnvironment(scene, Colors.magenta, Colors.cyan);
 // const { polygon, update: updatePolygonAnimation } = createPolygon(scene);
 
 let gameStarted = false;

@@ -1,4 +1,5 @@
 import {
+  CanvasTexture,
   FogExp2,
   Mesh,
   MeshPhysicalMaterial,
@@ -8,6 +9,31 @@ import {
   Scene,
   WebGLRenderer,
 } from 'three';
+
+export const createGradientSkyTexture = (color1: number, color2: number) => {
+  const canvas = document.createElement('canvas');
+  canvas.width = 512;
+  canvas.height = 512;
+  const ctx = canvas.getContext('2d')!;
+
+  // Convert hex colors to RGB strings
+  const hexToRgb = (hex: number) => {
+    const r = (hex >> 16) & 255;
+    const g = (hex >> 8) & 255;
+    const b = hex & 255;
+    return `rgb(${r}, ${g}, ${b})`;
+  };
+
+  // Create vertical gradient from top (color1) to bottom (color2)
+  const gradient = ctx.createLinearGradient(0, 0, 0, canvas.height);
+  gradient.addColorStop(0, hexToRgb(color1));
+  gradient.addColorStop(1, hexToRgb(color2));
+
+  ctx.fillStyle = gradient;
+  ctx.fillRect(0, 0, canvas.width, canvas.height);
+
+  return new CanvasTexture(canvas);
+};
 
 export const createScene = () => {
   const scene = new Scene();
@@ -22,7 +48,9 @@ export const createRenderer = (container: HTMLElement) => {
   return renderer;
 };
 
-export const setupEnvironment = (scene: Scene) => {
+export const setupEnvironment = (scene: Scene, skyColor1: number = 0x07061a, skyColor2: number = 0x1a0e3a) => {
+  // Set up gradient sky
+  scene.background = createGradientSkyTexture(skyColor1, skyColor2);
   const ground = new Mesh(
     new PlaneGeometry(40, 60),
     new MeshPhysicalMaterial({

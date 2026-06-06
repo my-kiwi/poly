@@ -11,15 +11,16 @@ import {
 import { getAudioCompletedPercentage } from './audio';
 
 export const Colors = {
-  blue: 0x00ddff, // #00ddff
-  green: 0x95ff24, // #95ff24
-  pink: 0xff46b0, // #ff46b0
-  purple: 0x9a53ff, // #9a53ff
-  orange: 0xffdd47, // #ffdd47
+  cyan: 0x00ffff, // #00ffff
+  limeGreen: 0x0fff50, // #0fff50
+  hotPink: 0xff0080, // #ff0080
+  magenta: 0xff00ff, // #ff00ff
+  red: 0xff0000, // #ff0000
+  yellow: 0xffff00, // #ffff00
 } as const;
 
 const greyColor = 0x101030;
-const startColor = Colors.green;
+const startColor = Colors.limeGreen;
 const startOpacity = 1;
 
 export const neonColors = Object.values(Colors) as number[];

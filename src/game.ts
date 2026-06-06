@@ -10,7 +10,11 @@ import {
   resizeRenderer,
   setupEnvironment,
 } from './game/scene';
-import { createCity, updateAudioReactiveElements } from './game/city';
+import {
+  createCity,
+  updateAudioReactiveElements,
+  updateBuildingTransformations,
+} from './game/city';
 import { addClickListener, removeClickListener } from './utils/events';
 import { createCamera } from './game/camera';
 
@@ -45,6 +49,7 @@ const animate = (time: number) => {
   lastFrameTime = time;
 
   updateAudioReactiveElements(analyser);
+  updateBuildingTransformations(time);
   if (isAnimatingToGame) {
     animationProgress += deltaTime * 0.0002;
     if (animationProgress >= 1) {

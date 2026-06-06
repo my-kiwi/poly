@@ -1,6 +1,10 @@
 import {
   AudioAnalyser,
   BoxGeometry,
+  SphereGeometry,
+  CylinderGeometry,
+  ConeGeometry,
+  BufferGeometry,
   Color,
   Mesh,
   MeshPhysicalMaterial,
@@ -55,6 +59,86 @@ export const createBuilding = (
   building.position.set(x, height / 2, z);
   scene.add(building);
   buildingColorsAndMaterials.get(neon)!.push(building.material as MeshStandardMaterial);
+  // register building for later progressive transformations
+  cityBuildings.push(building);
+};
+
+export const cityBuildings: Mesh[] = [];
+
+const transformStartDelay = 5000; // ms after which transformations begin
+const transformStagger = 12000; // ms span over which start times are staggered across city
+const perBuildingDuration = 18000; // ms duration for each building's transform
+
+type TransformInfo = {
+  target?: BufferGeometry;
+  swapped?: boolean;
+  shapeIndex?: number;
+};
+
+const targetGeometryFactories = [
+  (h: number, w: number) => new SphereGeometry(Math.max(0.4, Math.max(w, h) / 2), 8, 6),
+  (h: number, w: number) =>
+    new CylinderGeometry(Math.max(0.2, w / 2), Math.max(0.2, w / 2), Math.max(0.4, h), 8),
+  (h: number, w: number) => new ConeGeometry(Math.max(0.2, w / 2), Math.max(0.4, h), 8),
+];
+
+export const updateBuildingTransformations = (time: number) => {
+  if (!cityBuildings || cityBuildings.length === 0) return;
+  // time here is the high-resolution timestamp from requestAnimationFrame (ms)
+  for (let i = 0; i < cityBuildings.length; i++) {
+    const b = cityBuildings[i];
+    if (!b) continue;
+    if (!b.userData.transform) b.userData.transform = {} as TransformInfo;
+    const info: TransformInfo = b.userData.transform;
+
+    const start = transformStartDelay + (i / cityBuildings.length) * transformStagger;
+    const localElapsed = time - start;
+    if (localElapsed <= 0) continue; // not yet started for this building
+
+    const progress = Math.min(1, localElapsed / perBuildingDuration);
+
+    // choose a target geometry once
+    if (!info.target) {
+      // derive approximate dimensions from current geometry bounding box
+      const bboxHeight = b.geometry.boundingBox
+        ? b.geometry.boundingBox.max.y - b.geometry.boundingBox.min.y
+        : b.scale.y || 1;
+      const approxHeight = bboxHeight || b.scale.y || 1;
+      const approxWidth = Math.max(b.scale.x || 1, b.scale.z || 1);
+      const factory = targetGeometryFactories[i % targetGeometryFactories.length];
+      info.shapeIndex = i % targetGeometryFactories.length;
+      info.target = factory(approxHeight, approxWidth);
+      info.swapped = false;
+    }
+
+    // animate: first shrink, then swap at halfway, then grow back and settle rotation
+    if (progress < 0.5) {
+      const t = progress / 0.5; // 0..1 shrinking
+      const scale = 1 - t * 0.9;
+      b.scale.setScalar(scale);
+      // b.rotation.y += 0.002;
+    } else {
+      const t = (progress - 0.5) / 0.5; // 0..1 growing
+      if (!info.swapped) {
+        // swap geometry to target
+        const old = b.geometry;
+        b.geometry = info.target!;
+        old.dispose?.();
+        info.swapped = true;
+        // start from small
+        b.scale.setScalar(1);
+      }
+      const scale = 0.15 + t * t * 0.85;
+      b.scale.setScalar(scale);
+      // b.rotation.y += 0.02;
+      // slightly adjust material properties for transformed look
+      const mat = b.material as MeshStandardMaterial;
+      if (mat) {
+        mat.roughness = 0.4 + t * 0.4;
+        mat.emissiveIntensity = Math.max(0.05, mat.emissiveIntensity * (1 - 0.5 * t));
+      }
+    }
+  }
 };
 
 export const setDefaultBuildingColors = () => {
@@ -67,9 +151,9 @@ export const setDefaultBuildingColors = () => {
 };
 
 export const createCity = (scene: Scene) => {
-  for (let ix = -70; ix <= 70; ix += 1.5) {
+  for (let ix = -30; ix <= 30; ix += 1.5) {
     const rowOffset = ix * 1.2;
-    for (let iz = -20; iz <= 40; iz += 1.6) {
+    for (let iz = -30; iz <= 30; iz += 1.6) {
       const width = Math.random() * 0.9 + 0.8;
       const depth = Math.random() * 0.9 + 0.8;
       const height = Math.random() * 4 + 2.5 + Math.abs(iz) * 0.8;

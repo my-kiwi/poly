@@ -48,7 +48,11 @@ export const createRenderer = (container: HTMLElement) => {
   return renderer;
 };
 
-export const setupEnvironment = (scene: Scene, skyColor1: number = 0x07061a, skyColor2: number = 0x1a0e3a) => {
+export const setupEnvironment = (
+  scene: Scene,
+  skyColor1: number = 0x07061a,
+  skyColor2: number = 0x1a0e3a
+) => {
   // Set up gradient sky
   scene.background = createGradientSkyTexture(skyColor1, skyColor2);
   const ground = new Mesh(

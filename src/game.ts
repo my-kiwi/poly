@@ -9,6 +9,7 @@ import {
   renderFrame,
   resizeRenderer,
   setupEnvironment,
+  updateSkyGradient,
 } from './game/scene';
 import { createCity, updateAudioReactiveElements, Colors } from './game/city';
 import { addClickListener, removeClickListener } from './utils/events';
@@ -44,6 +45,7 @@ const animate = (time: number) => {
   const deltaTime = time - lastFrameTime;
   lastFrameTime = time;
 
+  updateSkyGradient(scene, time);
   updateAudioReactiveElements(analyser);
   if (isAnimatingToGame) {
     animationProgress += deltaTime * 0.0002;

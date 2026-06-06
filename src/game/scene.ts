@@ -9,6 +9,7 @@ import {
   Scene,
   WebGLRenderer,
 } from 'three';
+import { Colors } from './city';
 
 export const createGradientSkyTexture = (color1: number, color2: number) => {
   const canvas = document.createElement('canvas');
@@ -35,6 +36,48 @@ export const createGradientSkyTexture = (color1: number, color2: number) => {
   return new CanvasTexture(canvas);
 };
 
+// Interpolate between two hex colors
+const interpolateColor = (color1: number, color2: number, t: number): number => {
+  const r1 = (color1 >> 16) & 255;
+  const g1 = (color1 >> 8) & 255;
+  const b1 = color1 & 255;
+
+  const r2 = (color2 >> 16) & 255;
+  const g2 = (color2 >> 8) & 255;
+  const b2 = color2 & 255;
+
+  const r = Math.round(r1 + (r2 - r1) * t);
+  const g = Math.round(g1 + (g2 - g1) * t);
+  const b = Math.round(b1 + (b2 - b1) * t);
+
+  return (r << 16) | (g << 8) | b;
+};
+
+const colorArray = Object.values(Colors);
+
+export const updateSkyGradient = (scene: Scene, elapsedTime: number) => {
+  // Cycle through colors every 10 seconds
+  const cycleDuration = 10000;
+  const cycleProgress = (elapsedTime % cycleDuration) / cycleDuration;
+  const colorIndex = Math.floor(cycleProgress * colorArray.length);
+  const nextColorIndex = (colorIndex + 1) % colorArray.length;
+
+  // Interpolate between current and next color
+  const localProgress = (cycleProgress * colorArray.length) % 1;
+  const color1 = interpolateColor(
+    colorArray[colorIndex],
+    colorArray[nextColorIndex],
+    localProgress
+  );
+  const color2 = interpolateColor(
+    colorArray[nextColorIndex],
+    colorArray[(nextColorIndex + 1) % colorArray.length],
+    localProgress
+  );
+
+  scene.background = createGradientSkyTexture(color1, color2);
+};
+
 export const createScene = () => {
   const scene = new Scene();
   scene.fog = new FogExp2(0x07061a, 0.028);
@@ -56,7 +99,7 @@ export const setupEnvironment = (
   // Set up gradient sky
   scene.background = createGradientSkyTexture(skyColor1, skyColor2);
   const ground = new Mesh(
-    new PlaneGeometry(40, 60),
+    new PlaneGeometry(150, 150),
     new MeshPhysicalMaterial({
       color: 0x050613,
       emissive: 0x0b0e2b,

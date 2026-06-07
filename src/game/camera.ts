@@ -1,4 +1,4 @@
-import { PerspectiveCamera, Vector3 } from 'three';
+import { PerspectiveCamera, Vector3 } from 'three/webgpu';
 import { FirstPersonControls } from 'three/addons/controls/FirstPersonControls.js';
 import { WebGPURenderer } from 'three/webgpu';
 

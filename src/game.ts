@@ -1,5 +1,5 @@
-import * as THREE from 'three';
-import { AudioAnalyser, AudioListener } from 'three';
+import * as THREE from 'three/webgpu';
+import { AudioAnalyser, AudioListener } from 'three/webgpu';
 import { resumeAudioIfNeeded, startAudio } from './game/audio';
 import { requestWakeLock } from './utils/screen-lock';
 

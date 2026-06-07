@@ -6,7 +6,7 @@ import {
   MeshPhysicalMaterial,
   MeshStandardMaterial,
   Scene,
-} from 'three';
+} from 'three/webgpu';
 
 import { getAudioCompletedPercentage } from './audio';
 

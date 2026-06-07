@@ -6,10 +6,9 @@ import {
   PerspectiveCamera,
   PlaneGeometry,
   PointLight,
+  WebGPURenderer,
   Scene,
-} from 'three';
-
-import { WebGPURenderer } from 'three/webgpu';
+} from 'three/webgpu';
 import { Colors } from './city';
 
 export const createGradientSkyTexture = (color1: number, color2: number) => {

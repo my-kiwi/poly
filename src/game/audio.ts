@@ -1,4 +1,4 @@
-import * as THREE from 'three';
+import * as THREE from 'three/webgpu';
 import { hideCreditsOverlay, showCreditsOverlay } from './credits';
 
 const url = './audio/joshua_moses_where_we_end_up.mp3';

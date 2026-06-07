@@ -1,5 +1,5 @@
-import * as THREE from 'three';
-import { AudioAnalyser, AudioListener } from 'three';
+import * as THREE from 'three/webgpu';
+import { AudioAnalyser, AudioListener } from 'three/webgpu';
 import { resumeAudioIfNeeded, startAudio } from './game/audio';
 import { requestWakeLock } from './utils/screen-lock';
 
@@ -17,7 +17,7 @@ import { createCamera, createControls } from './game/camera';
 
 const container = document.getElementById('game')!;
 const scene = createScene();
-const renderer = createRenderer(container);
+const renderer = await createRenderer(container);
 const camera = createCamera();
 const controls = createControls(camera, renderer);
 

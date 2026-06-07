@@ -84,10 +84,11 @@ export const createScene = () => {
   return scene;
 };
 
-export const createRenderer = (container: HTMLElement) => {
+export const createRenderer = async (container: HTMLElement) => {
   const renderer = new WebGPURenderer({ antialias: true, alpha: true });
   renderer.setPixelRatio(window.devicePixelRatio);
   container.appendChild(renderer.domElement);
+  await renderer.init();
   return renderer;
 };
 

@@ -17,7 +17,7 @@ import { createCamera, createControls } from './game/camera';
 
 const container = document.getElementById('game')!;
 const scene = createScene();
-const renderer = createRenderer(container);
+const renderer = await createRenderer(container);
 const camera = createCamera();
 const controls = createControls(camera, renderer);
 

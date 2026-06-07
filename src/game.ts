@@ -13,12 +13,13 @@ import {
 } from './game/scene';
 import { createCity, updateAudioReactiveElements, Colors } from './game/city';
 import { addClickListener, removeClickListener } from './utils/events';
-import { createCamera } from './game/camera';
+import { createCamera, createControls } from './game/camera';
 
 const container = document.getElementById('game')!;
 const scene = createScene();
 const renderer = createRenderer(container);
-const { camera, update: updateCamera } = createCamera(renderer);
+const camera = createCamera();
+const controls = createControls(camera, renderer);
 
 const audioListener = new AudioListener();
 
@@ -35,7 +36,7 @@ let isAnimatingToGame = false;
 let animationProgress = 0;
 let lastFrameTime = 0;
 const startCameraPos = camera.position.clone();
-const finalCameraPos = startCameraPos.clone().setY(0.5).setZ(20);
+const finalCameraPos = startCameraPos.clone().setY(0.1).setZ(20);
 
 const resize = () => resizeRenderer(renderer, camera, container);
 window.addEventListener('resize', resize);
@@ -49,24 +50,25 @@ const animate = (time: number) => {
   updateAudioReactiveElements(analyser);
   if (isAnimatingToGame) {
     animationProgress += deltaTime * 0.0002;
-    if (animationProgress >= 1) {
+    if (camera.position.y <= 2) {
       animationProgress = 1;
       isAnimatingToGame = false;
     }
-
+    if (animationProgress > 1) {
+      animationProgress = 1;
+    }
     camera.position.x = THREE.MathUtils.lerp(startCameraPos.x, finalCameraPos.x, animationProgress);
     camera.position.y = THREE.MathUtils.lerp(startCameraPos.y, finalCameraPos.y, animationProgress);
     camera.position.z = THREE.MathUtils.lerp(startCameraPos.z, finalCameraPos.z, animationProgress);
+    controls.lookAt(0, 3, 0);
     // // camera.lookAt(finalCameraPos);
   } else if (gameStarted) {
-    camera.position.z += deltaTime * 0.002;
-    // camera.position.x = Math.sin(time) * 12;
-    // camera.position.z = Math.cos(time) * 20;
-    // camera.position.y = 0.1; //6 + Math.sin(time * 0.8) * 0.6;
+    // console.log('Animating game...', camera.position);
+    camera.position.y = 1; //6 + Math.sin(time * 0.8) * 0.6;
   }
 
   // camera.lookAt(new Vector3(0, 3, 0));
-  updateCamera();
+  controls.update(deltaTime);
   renderFrame(renderer, scene, camera);
   renderer.setAnimationLoop(animate);
 };

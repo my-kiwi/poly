@@ -1,21 +1,20 @@
 import { PerspectiveCamera, Vector3 } from 'three';
 import * as THREE from 'three';
-import { OrbitControls } from 'three/addons/controls/OrbitControls.js';
+import { FirstPersonControls } from 'three/addons/controls/FirstPersonControls.js';
 
-export const createCamera = (renderer: THREE.WebGLRenderer) => {
+export const createCamera = () => {
   const camera = new PerspectiveCamera(80, 1, 0.1, 200);
   camera.position.set(0, 50, 0);
   camera.lookAt(new Vector3(0, 3, 0));
-  // Orbit controls for free camera mode
-  const orbitControls = new OrbitControls(camera, renderer.domElement);
-  orbitControls.maxDistance = 50;
-  orbitControls.maxPolarAngle = THREE.MathUtils.degToRad(90);
-  orbitControls.target.set(0, 0, 0);
-  orbitControls.enabled = true;
-  orbitControls.autoRotate = true;
-  orbitControls.autoRotateSpeed = 0.1;
+  return camera;
+};
 
-  orbitControls.cursorStyle = 'grab';
-  orbitControls.update();
-  return { camera, update: () => orbitControls.update() };
+export const createControls = (camera: PerspectiveCamera, renderer: THREE.WebGLRenderer) => {
+  // https://threejs.org/docs/#FirstPersonControls
+  const controls = new FirstPersonControls(camera, renderer.domElement);
+  controls.enabled = true;
+  controls.movementSpeed = 0.001; // Units per second
+  controls.lookSpeed = 0.0005; // Rotation sensitivity
+  controls.lookVertical = true; // Set to false to lock the horizon
+  return controls;
 };

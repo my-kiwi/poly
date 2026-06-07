@@ -7,8 +7,9 @@ import {
   PlaneGeometry,
   PointLight,
   Scene,
-  WebGLRenderer,
 } from 'three';
+
+import { WebGPURenderer } from 'three/webgpu';
 import { Colors } from './city';
 
 export const createGradientSkyTexture = (color1: number, color2: number) => {
@@ -85,7 +86,7 @@ export const createScene = () => {
 };
 
 export const createRenderer = (container: HTMLElement) => {
-  const renderer = new WebGLRenderer({ antialias: true, alpha: true });
+  const renderer = new WebGPURenderer({ antialias: true, alpha: true });
   renderer.setPixelRatio(window.devicePixelRatio);
   container.appendChild(renderer.domElement);
   return renderer;
@@ -153,7 +154,7 @@ export const setupEnvironment = (
 };
 
 export const resizeRenderer = (
-  renderer: WebGLRenderer,
+  renderer: WebGPURenderer,
   camera: PerspectiveCamera,
   container: HTMLElement
 ) => {
@@ -164,6 +165,6 @@ export const resizeRenderer = (
   camera.updateProjectionMatrix();
 };
 
-export const renderFrame = (renderer: WebGLRenderer, scene: Scene, camera: PerspectiveCamera) => {
+export const renderFrame = (renderer: WebGPURenderer, scene: Scene, camera: PerspectiveCamera) => {
   renderer.render(scene, camera);
 };

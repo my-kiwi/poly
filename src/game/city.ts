@@ -67,7 +67,7 @@ export const setDefaultBuildingColors = () => {
   });
 };
 
-const maxRows = 37;// rows are facing the 
+const maxRows = 37; // rows are facing the
 const rowStep = 30;
 const maxRowsByStep = maxRows * rowStep;
 
@@ -85,7 +85,7 @@ export const createCity = (scene: Scene) => {
     for (let iz = -maxColsByStep / 2; iz <= maxColsByStep / 2; iz += colStep) {
       const width = Math.random() * 0.9 + minWidth;
       const depth = Math.random() * 0.9 + minDepth;
-      const height = Math.random() * 20 + minHeight ;// + Math.abs(iz) * 0.8;
+      const height = Math.random() * 20 + minHeight; // + Math.abs(iz) * 0.8;
       const neon = neonColors[Math.floor(Math.random() * neonColors.length)];
       createBuilding(scene, iz * 2.5, rowOffset, width, depth, height, 0x101030, neon);
     }

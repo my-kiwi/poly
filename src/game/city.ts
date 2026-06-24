@@ -67,21 +67,25 @@ export const setDefaultBuildingColors = () => {
   });
 };
 
-const maxRows = 30;
-const rowStep = 1.5;
+const maxRows = 37;// rows are facing the 
+const rowStep = 30;
 const maxRowsByStep = maxRows * rowStep;
 
-const maxCols = 30;
-const colStep = 1.6;
+const maxCols = 35; // must always be odd to have a center column
+const colStep = 30;
 const maxColsByStep = maxCols * colStep;
+
+const minWidth = 8;
+const minDepth = 8;
+const minHeight = 10.5;
 
 export const createCity = (scene: Scene) => {
   for (let ix = -maxRowsByStep / 2; ix <= maxRowsByStep / 2; ix += rowStep) {
     const rowOffset = ix * 1.2;
     for (let iz = -maxColsByStep / 2; iz <= maxColsByStep / 2; iz += colStep) {
-      const width = Math.random() * 0.9 + 0.8;
-      const depth = Math.random() * 0.9 + 0.8;
-      const height = Math.random() * 4 + 2.5 + Math.abs(iz) * 0.8;
+      const width = Math.random() * 0.9 + minWidth;
+      const depth = Math.random() * 0.9 + minDepth;
+      const height = Math.random() * 20 + minHeight ;// + Math.abs(iz) * 0.8;
       const neon = neonColors[Math.floor(Math.random() * neonColors.length)];
       createBuilding(scene, iz * 2.5, rowOffset, width, depth, height, 0x101030, neon);
     }

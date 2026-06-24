@@ -56,8 +56,8 @@ const interpolateColor = (color1: number, color2: number, t: number): number => 
 const colorArray = Object.values(Colors);
 
 export const updateSkyGradient = (scene: Scene, elapsedTime: number) => {
-  // Cycle through colors every 10 seconds
-  const cycleDuration = 10000;
+  // Cycle through colors every 30 seconds
+  const cycleDuration = 30000;
   const cycleProgress = (elapsedTime % cycleDuration) / cycleDuration;
   const colorIndex = Math.floor(cycleProgress * colorArray.length);
   const nextColorIndex = (colorIndex + 1) % colorArray.length;
@@ -99,7 +99,7 @@ export const setupEnvironment = (
   // Set up gradient sky
   scene.background = createGradientSkyTexture(skyColor1, skyColor2);
   const ground = new Mesh(
-    new PlaneGeometry(150, 150),
+    new PlaneGeometry(1500, 1500),
     new MeshPhysicalMaterial({
       color: 0x050613,
       emissive: 0x0b0e2b,

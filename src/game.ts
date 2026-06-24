@@ -78,7 +78,7 @@ const startGame = async () => {
   // start the animation after a short delay
   setTimeout(() => {
     gameStarted = true;
-    isAnimatingToGame = true;
+    isAnimatingToGame = false;
   }, 5500);
   try {
     removeClickListener(startGame);

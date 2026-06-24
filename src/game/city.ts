@@ -20,7 +20,7 @@ export const Colors = {
 } as const;
 
 const greyColor = 0x101030;
-const startColor = Colors.limeGreen;
+const startColor = 0; // 0 = disabled
 const startOpacity = 1;
 
 export const neonColors = Object.values(Colors) as number[];

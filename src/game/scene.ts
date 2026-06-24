@@ -1,11 +1,13 @@
 import {
+  AmbientLight,
   CanvasTexture,
+  DirectionalLight,
   FogExp2,
+  HemisphereLight,
   Mesh,
   MeshPhysicalMaterial,
   PerspectiveCamera,
   PlaneGeometry,
-  PointLight,
   Scene,
   WebGLRenderer,
 } from 'three';
@@ -125,13 +127,20 @@ export const setupEnvironment = (
   // grid2.rotation.z = Math.PI / 2;
   // scene.add(grid2);
 
-  const keyLight = new PointLight(0x9a53ff, 0.1, 25, 2);
-  keyLight.position.set(-12, 12, 10);
-  // scene.add(keyLight);
+  const hemisphereLight = new HemisphereLight(0x6677ff, 0x101020, 1.35);
+  scene.add(hemisphereLight);
 
-  const fillLight = new PointLight(0x33b2ff, 0.1, 20, 2);
-  fillLight.position.set(10, 8, -12);
-  // scene.add(fillLight);
+  const ambientLight = new AmbientLight(0xffffff, 1.45);
+  scene.add(ambientLight);
+
+  const sunLight = new DirectionalLight(0xfff1d8, 1.2);
+  sunLight.position.set(-50, 80, 40);
+  scene.add(sunLight);
+
+  const fillLight = new DirectionalLight(0x7fbfff, 1.25);
+  fillLight.position.set(25, 20, -35);
+  scene.add(fillLight);
+
   // const radius = 10;
   // const sectors = 16;
   // const rings = 8;

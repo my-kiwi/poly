@@ -80,7 +80,7 @@ export const updateSkyGradient = (scene: Scene, elapsedTime: number) => {
 
 export const createScene = () => {
   const scene = new Scene();
-  scene.fog = new FogExp2(0x07061a, 0.028);
+  scene.fog = new FogExp2(0x07061a, 0.003);
   return scene;
 };
 
